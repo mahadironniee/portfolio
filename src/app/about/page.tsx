@@ -29,7 +29,7 @@ export default function AboutPage() {
                         }}
                     >
                         <img
-                            src="/MohammodMahady.svg"
+                            src="/svgs/headlines/MohammodMahady.svg"
                             alt="Mohammod Mahady Headline"
                             className="w-[1120px] h-auto block"
                         />
@@ -46,7 +46,7 @@ export default function AboutPage() {
                         }}
                     >
                         <div className="w-full h-full rounded-full overflow-hidden grayscale ring-1 ring-black/5 shadow-2xl">
-                            <img src="/profile.png" alt="Profile" className="w-full h-full object-cover" />
+                            <img src="/images/profile.png" alt="Profile" className="w-full h-full object-cover" />
                         </div>
                     </div>
 
@@ -91,7 +91,7 @@ export default function AboutPage() {
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-4">
                             <div className="w-[58px] h-[58px] rounded-full overflow-hidden grayscale translate-y-6">
-                                <img src="/profile.png" alt="Thumb" className="w-full h-full object-cover" />
+                                <img src="/images/profile.png" alt="Thumb" className="w-full h-full object-cover" />
                             </div>
                             <span className="text-[180px] font-black tracking-tighter text-white leading-none">
                                 .Mahady.

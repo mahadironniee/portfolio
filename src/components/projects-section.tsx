@@ -13,7 +13,7 @@ const PROJECTS = [
         description: "A high-fidelity digital storefront for seamless content-driven commerce.",
         year: "2024",
         link: "/projects/rokomferi",
-        image: "/projects/rokomferi-v2.png"
+        image: "/images/projects/rokomferi-v2.png"
     },
     {
         id: "haus",
@@ -22,7 +22,7 @@ const PROJECTS = [
         description: "Structural design language for minimalist architectural exploration.",
         year: "2024",
         link: "#",
-        image: "/projects/haus-v2.png"
+        image: "/images/projects/haus-v2.png"
     },
     {
         id: "abstract",
@@ -31,7 +31,7 @@ const PROJECTS = [
         description: "Deconstructing visual paradigms through generative geometric systems.",
         year: "2025",
         link: "#",
-        image: "/projects/abstract-v2.png"
+        image: "/images/projects/abstract-v2.png"
     }
 ];
 
@@ -210,7 +210,7 @@ export default function ProjectsSection() {
                                 style={{ x: featuredX }}
                                 className="md:pr-16 select-none leading-none flex items-center whitespace-nowrap"
                             >
-                                <img src="/Featured.svg" alt="FEATURED" className="h-[10vw] md:h-[8vw] w-auto object-contain pointer-events-none" />
+                                <img src="/svgs/projects/Featured.svg" alt="FEATURED" className="h-[10vw] md:h-[8vw] w-auto object-contain pointer-events-none" />
                             </motion.div>
                         </div>
 
@@ -222,7 +222,7 @@ export default function ProjectsSection() {
                                 style={{ x: projectX }}
                                 className="md:pl-16 select-none leading-none flex items-center whitespace-nowrap"
                             >
-                                <img src="/Project.svg" alt="PROJECT" className="h-[10vw] md:h-[8vw] w-auto object-contain pointer-events-none" />
+                                <img src="/svgs/projects/Project.svg" alt="PROJECT" className="h-[10vw] md:h-[8vw] w-auto object-contain pointer-events-none" />
                             </motion.div>
                         </div>
                     </div>

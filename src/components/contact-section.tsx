@@ -12,8 +12,8 @@ export default function ContactSection() {
                 {/* Standardized Optical Sizing: Baseline (100% multiplier, max-width 1400px) */}
                 <div className="w-full select-none pointer-events-none">
                     <img
-                        src="/Contact CTAh.svg"
-                        alt="Contact Let's Ship Your Next Website"
+                        src="/svgs/headlines/Contact CTAh.svg"
+                        alt="Contact Headline"
                         className="w-full h-auto object-contain"
                     />
                 </div>

@@ -73,7 +73,7 @@ function NavbarInner({
                         {/* Reuse the icon rendering logic below */}
                         <div className="w-full h-full relative">
                             <img
-                                src="/profile.png"
+                                src="/images/profile.png"
                                 alt="Profile"
                                 className="w-full h-full object-cover transition-all duration-400 blur-[3px] opacity-40 scale-110"
                             />
@@ -98,7 +98,7 @@ function NavbarInner({
                         <div className="w-full h-full relative">
                             {/* The Image - Smooth blur on hover (Home) or Always Blur (Special Pages) */}
                             <img
-                                src="/profile.png"
+                                src="/images/profile.png"
                                 alt="Profile"
                                 className={`w-full h-full object-cover transition-all duration-400 
                                     ${isSpecialPage ? 'blur-[3px] opacity-40 scale-110' : 'group-hover:blur-[2px] group-hover:opacity-40 group-hover:scale-110'}`}

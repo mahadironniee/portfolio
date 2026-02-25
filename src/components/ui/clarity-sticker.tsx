@@ -4,7 +4,7 @@ export default function ClaritySticker({ className }: { className?: string }) {
     return (
         <div className={className}>
             <Image
-                src="/clarity.svg"
+                src="/icons/clarity.svg"
                 alt="with Clarity"
                 width={352}
                 height={113}

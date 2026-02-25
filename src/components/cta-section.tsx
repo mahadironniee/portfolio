@@ -23,7 +23,7 @@ export default function CTASection() {
                 {/* MAIN HEADLINE - Standardized Sizing (85% of Contact CTA optical size) */}
                 <div className="relative md:absolute z-10 w-[85%] md:w-full md:max-w-[1190px] md:left-[154px] md:top-[155px] mt-12 md:mt-0">
                     <img
-                        src="/QuestionCTA.svg"
+                        src="/svgs/headlines/QuestionCTA.svg"
                         alt="Question CTA Header"
                         className="w-full h-auto object-contain select-none pointer-events-none"
                         style={{ filter: 'brightness(0) invert(1)' }}
@@ -49,7 +49,7 @@ export default function CTASection() {
                                 className="w-[50px] md:w-[60px] h-[50px] md:h-[60px] rounded-full border-2 border-[#0004D9] overflow-hidden bg-gray-950"
                             >
                                 <img
-                                    src={`/avatars/cta_${Math.min(i, 3)}.png`}
+                                    src={`/images/avatars/cta_${Math.min(i, 3)}.png`}
                                     alt={`Partner ${i}`}
                                     className="w-full h-full object-cover grayscale contrast-125"
                                 />

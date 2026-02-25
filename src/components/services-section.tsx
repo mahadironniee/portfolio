@@ -6,27 +6,27 @@ const SERVICES = [
     {
         id: "ux-design",
         label: "USER EXPERIENCE DESIGN",
-        svg: "/User experience design.svg",
+        svg: "/svgs/services/User experience design.svg",
     },
     {
         id: "ui-visual",
         label: "UI / VISUAL DESIGN",
-        svg: "/Visual Design01.svg",
+        svg: "/svgs/services/Visual Design01.svg",
     },
     {
         id: "research",
         label: "RESEARCH / STRATEGY",
-        svg: "/Strategy01.svg",
+        svg: "/svgs/services/Strategy01.svg",
     },
     {
         id: "prototype",
         label: "PROTOTYPE",
-        svg: "/Prototype.svg",
+        svg: "/svgs/services/Prototype.svg",
     },
     {
         id: "frontend",
         label: "FRONT-END DEVELOPMENT",
-        svg: "/Front-end development.svg",
+        svg: "/svgs/services/Front-end development.svg",
     }
 ];
 

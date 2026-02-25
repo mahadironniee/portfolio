@@ -20,9 +20,8 @@ export default function RokomferiPage() {
                         <div style={{ width: '1496px' }}>
                             <div className="relative" style={{ width: '870px' }}>
                                 <img
-                                    src="/RokomferiHeadline.svg"
-                                    alt="Rokomferi"
-                                    className="w-full h-auto object-contain"
+                                    src="/svgs/headlines/RokomferiHeadline.svg"
+                                    alt="Rokomferi" className="w-full h-auto object-contain"
                                     style={{ filter: 'brightness(0)' }}
                                 />
                             </div>
