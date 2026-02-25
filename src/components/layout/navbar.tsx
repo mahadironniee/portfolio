@@ -427,7 +427,7 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
                 style={{
                     height: `${navHeight}px`,
                     // @ts-ignore
-                    "--scroll-w": `${8 + (scrollProgress * ((window.innerWidth < 768 ? 100 : 200) - 8))}px`
+                    "--scroll-w": `${8 + (scrollProgress * ((typeof window !== 'undefined' && window.innerWidth < 768 ? 100 : 200) - 8))}px`
                 }}
             >
                 {/* Layer 1: Base (White Text) - Masked to avoid blending with dark overlay */}
