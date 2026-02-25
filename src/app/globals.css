@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+html {
+  overflow-x: clip;
+  width: 100%;
+}
+
+body {
+  overscroll-behavior: auto;
+  position: relative;
+  width: 100%;
+  /* No overflow-y here to ensure sticky works correctly on all systems */
+}
+
+@theme {
+  --color-brand-blue: #0004D9;
+  --color-white: #F5F5FA;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-script: "Smooch", cursive;
+}
+
+p {
+  font-family: var(--font-inter);
+}
+
+/* Custom Utilities */
+@utility text-shadow-sm {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
