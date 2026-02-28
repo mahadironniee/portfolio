@@ -8,6 +8,7 @@ interface BracketButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     color?: "white" | "black";
     className?: string;
     children: React.ReactNode;
+    
 }
 
 export default function BracketButton({
