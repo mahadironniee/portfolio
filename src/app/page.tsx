@@ -4,13 +4,13 @@ import React, { useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import Image from "next/image";
 import BracketButton from "@/components/ui/bracket-button";
-import LessIsMoreSection from "@/components/less-is-more-section";
 import ProjectsSection from "@/components/projects-section";
 import ServicesSection from "@/components/services-section";
 import ContactSection from "@/components/contact-section";
 import CTASection from "@/components/cta-section";
 import Footer from "@/components/layout/footer";
 import AnimatedSideProjects from "@/components/ui/animated-side-projects";
+import SecondSection from "@/components/second-section";
 
 export default function Home() {
   const pupilX = useMotionValue(0);
@@ -259,7 +259,7 @@ export default function Home() {
 
         {/* Scrollable Content Sections */}
         <div className="relative z-10 bg-[#F5F5FA] light-bg-nav-trigger">
-          <LessIsMoreSection />
+          <SecondSection />
           <ProjectsSection />
           <ServicesSection />
           <CTASection />
