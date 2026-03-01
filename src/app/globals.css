@@ -28,39 +28,74 @@ p {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Burger Menu */
-.burger-icon {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  cursor: pointer;
-  padding: 4px;
-}
-.burger-icon .burger-left,
-.burger-icon .burger-right {
-  display: block;
-  background: currentColor;
-  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-              border-radius 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* Burger Menu Physics */
 .burger-icon .burger-left {
   width: 7px;
   height: 16px;
   border-radius: 0.5px;
 }
+
 .burger-icon .burger-right {
   width: 10px;
   height: 28px;
   border-radius: 1px;
 }
-.burger-icon:hover .burger-left {
+
+.burger-icon.is-hovered .burger-left {
   width: 10px;
   height: 28px;
   border-radius: 1px;
 }
-.burger-icon:hover .burger-right {
+
+.burger-icon.is-hovered .burger-right {
   width: 7px;
   height: 16px;
   border-radius: 0.5px;
+}
+
+
+/* Eye Blinking Animation */
+@keyframes eyeBlink {
+
+  /* Keep eye fully open for the vast majority of the time */
+  0%,
+  14%,
+  18%,
+  43%,
+  47%,
+  77%,
+  81%,
+  97% {
+    transform: scaleY(1) translateZ(0);
+  }
+
+  /* Blink 1 at ~2.0s */
+  16% {
+    transform: scaleY(0.1) translateZ(0);
+  }
+
+  /* Blink 2 at ~5.4s (gap from previous: ~3.4s) */
+  45% {
+    transform: scaleY(0.1) translateZ(0);
+  }
+
+  /* Blink 3 at ~9.5s (gap from previous: ~4.1s) */
+  79% {
+    transform: scaleY(0.1) translateZ(0);
+  }
+
+  /* Blink 4 at ~11.9s (gap from previous: ~2.4s) */
+  99% {
+    transform: scaleY(0.1) translateZ(0);
+  }
+
+  100% {
+    transform: scaleY(1) translateZ(0);
+  }
+}
+
+.animate-blink {
+  animation: eyeBlink 12s infinite;
+  transform-origin: center;
+  will-change: transform;
 }

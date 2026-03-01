@@ -13,59 +13,87 @@ import Footer from "@/components/layout/footer";
 import AnimatedSideProjects from "@/components/ui/animated-side-projects";
 
 export default function Home() {
-  // Intermediate values for clamped coordinates
   const pupilX = useMotionValue(0);
   const pupilY = useMotionValue(0);
+  const pupilScale = useMotionValue(1);
+  const socketX = useMotionValue(0);
+  const socketY = useMotionValue(0);
+  const socketScaleX = useMotionValue(1);
+  const socketScaleY = useMotionValue(1);
   const eyeRef = React.useRef<HTMLDivElement>(null);
 
-  // Apply spring physics to the clamped values for that "strain/drag" effect
-  const springConfig = { damping: 25, stiffness: 150, mass: 0.8 };
+  // Smooth, independent physics for the pupil (tightened tracking, life-like ease)
+  const springConfig = { damping: 20, stiffness: 250, mass: 0.2 };
   const smoothX = useSpring(pupilX, springConfig);
   const smoothY = useSpring(pupilY, springConfig);
 
+  // Dilation physics - responds slightly slower for biological feel
+  const scaleSpringConfig = { damping: 25, stiffness: 150, mass: 0.4 };
+  const smoothScale = useSpring(pupilScale, scaleSpringConfig);
+
+  // Socket physics - stiffer, subtle and delayed 
+  // It represents the firmer mass of the whole eyeball shifting
+  const socketSpringConfig = { damping: 25, stiffness: 180, mass: 0.6 };
+  const smoothSocketX = useSpring(socketX, socketSpringConfig);
+  const smoothSocketY = useSpring(socketY, socketSpringConfig);
+  const smoothSocketScaleX = useSpring(socketScaleX, socketSpringConfig);
+  const smoothSocketScaleY = useSpring(socketScaleY, socketSpringConfig);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      // Find the absolute center of the eye dot on screen
       if (!eyeRef.current) return;
 
-      const eyeRect = eyeRef.current.getBoundingClientRect();
-      // Calculate the visual center of the socket on screen
-      const eyeCenterX = eyeRect.left + (eyeRect.width / 2);
-      const eyeCenterY = eyeRect.top + (eyeRect.height / 2);
+      const { left, top, width, height } = eyeRef.current.getBoundingClientRect();
+      const centerX = left + width / 2;
+      const centerY = top + height / 2;
 
-      // Distance from mouse to the eye center
-      const distanceX = e.clientX - eyeCenterX;
-      const distanceY = e.clientY - eyeCenterY;
+      const deltaX = e.clientX - centerX;
+      const deltaY = e.clientY - centerY;
 
-      // Calculate the distance to the screen edges from the eye center dynamically based on direction
-      // This ensures that hitting ANY edge of the screen gives precisely -1.0 or 1.0, fixing the skewing
-      const rangeX = distanceX < 0 ? eyeCenterX : (window.innerWidth - eyeCenterX);
-      const rangeY = distanceY < 0 ? eyeCenterY : (window.innerHeight - eyeCenterY);
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      const angle = Math.atan2(deltaY, deltaX);
 
-      let normX = rangeX === 0 ? 0 : distanceX / rangeX;
-      let normY = rangeY === 0 ? 0 : distanceY / rangeY;
+      // Max allowed travel distance calculation to stay fully inside the white socket area securely
+      const MAX_RADIUS = 7.0;
 
-      // Define physical displacement bounds.
-      // Since the black pupil is 39px (the same size as the white socket), moving it too far
-      // looks like it "goes out" of the white circle physically. We tighten this bound down mathematically
-      // to 5.0px so it gives a 3D parallax effect without physically escaping the letter boundaries.
-      const MAX_PUPIL_RADIUS = 5.0;
+      // Asymptotic curve mapping: the tracking never arbitrarily hits a "wall". 
+      // It smoothly approaches the max radius limits the further away the mouse gets.
+      const mappedRadius = (distance / (distance + 400)) * MAX_RADIUS;
 
-      const SENSITIVITY = 10;
-      let targetDistX = normX * SENSITIVITY;
-      let targetDistY = normY * SENSITIVITY;
+      // Dilation logic: the further the mouse is, the larger the pupil gets (up to 1.35x size)
+      // When the mouse is directly over/very close to the eye, distance drops and scale approaches 1.0.
+      const MAX_SCALE = 1.35;
+      const mappedScale = 1.0 + (distance / (distance + 800)) * (MAX_SCALE - 1.0);
 
-      // Apply circular clamp to keep the movement strictly radial and rounded
-      const mouseDist = Math.sqrt(targetDistX * targetDistX + targetDistY * targetDistY);
+      pupilX.set(Math.cos(angle) * mappedRadius);
+      pupilY.set(Math.sin(angle) * mappedRadius);
+      pupilScale.set(mappedScale);
 
-      if (mouseDist > MAX_PUPIL_RADIUS) {
-        const ratio = MAX_PUPIL_RADIUS / mouseDist;
-        targetDistX = targetDistX * ratio;
-        targetDistY = targetDistY * ratio;
-      }
+      // --- Socket Movement Logic ---
+      // The socket itself moves but much less (e.g. max 3px shift)
+      const MAX_SOCKET_SHIFT = 3.0;
+      const mappedSocketShift = (distance / (distance + 400)) * MAX_SOCKET_SHIFT;
 
-      pupilX.set(targetDistX);
-      pupilY.set(targetDistY);
+      // Squish the socket slightly in the direction of movement.
+      // E.g. If looking far right, the width squeezes slightly (0.95) and height bulges (1.05)
+      // We calculate a generic "squish factor" based on distance
+      const MAX_SQUISH = 0.08; // 8% distortion max
+      const squishAmount = (distance / (distance + 600)) * MAX_SQUISH;
+
+      // Calculate how much horizontal vs vertical movement is happening
+      const absCos = Math.abs(Math.cos(angle));
+      const absSin = Math.abs(Math.sin(angle));
+
+      // Apply the squish. If mostly moving horizontally, squeeze width and bulge height.
+      // If mostly moving vertically, squeeze height and bulge width.
+      // This creates a very organic "muscular tension" effect.
+      const scaleXAmount = 1.0 - (squishAmount * absCos) + (squishAmount * absSin * 0.5);
+      const scaleYAmount = 1.0 - (squishAmount * absSin) + (squishAmount * absCos * 0.5);
+
+      socketX.set(Math.cos(angle) * mappedSocketShift);
+      socketY.set(Math.sin(angle) * mappedSocketShift);
+      socketScaleX.set(scaleXAmount);
+      socketScaleY.set(scaleYAmount);
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -115,47 +143,41 @@ export default function Home() {
               priority
             />
 
-            {/* Static wrapper for exact coordinate reference without transform feedback loops */}
-            <div
+            {/* Dynamic wrapper for the whole white socket, driven by its own physics */}
+            <motion.div
               ref={eyeRef}
               className="absolute pointer-events-none"
               style={{
                 width: 39,
                 height: 39,
-                left: 988.5 - 19.5, // 969px
-                top: 264.545 - 19.5, // 245.045px
+                // Optically nudged slightly right and down to counteract any layout illusion
+                left: 970.5,
+                top: 246.5,
+                x: smoothSocketX,
+                y: smoothSocketY,
+                scaleX: smoothSocketScaleX,
+                scaleY: smoothSocketScaleY,
               }}
             >
               {/* Interactive Eye Pupil for the 'i' in 'Designer' */}
               <motion.div
                 className="absolute"
                 style={{
-                  width: 39,
-                  height: 39,
-                  left: 0,
-                  top: 0,
+                  width: 24, // The pupil is purposely smaller than 39px so it moves INSIDE the white socket
+                  height: 24,
+                  left: 7.5, // Centers the 24px pupil precisely inside the 39px area ((39-24) / 2 = 7.5)
+                  top: 7.5,
                   x: smoothX,
                   y: smoothY,
+                  scale: smoothScale,
                 }}
               >
-                {/* Inner wrapper handles the blinking scale */}
-                <motion.div
-                  className="w-full h-full bg-black rounded-full"
-                  animate={{
-                    scaleY: [1, 1, 0.1, 1, 1],
-                    scaleX: [1, 1, 1.1, 1, 1], // slight widening on blink for realism
-                  }}
-                  transition={{
-                    duration: 4,               // full cycle
-                    ease: "easeInOut",
-                    times: [0, 0.95, 0.975, 1, 1], // spend 95% of time fully open
-                    repeat: Infinity,
-                    repeatDelay: 1
-                  }}
-                  style={{ originY: 0.5, originX: 0.5 }}
+                {/* Inner wrapper handles the continuous blinking via CSS */}
+                <div
+                  className="w-full h-full bg-black rounded-full animate-blink"
                 />
               </motion.div>
-            </div>
+            </motion.div>
           </motion.div>
 
           {/* Main Heading Typography Container */}
@@ -203,28 +225,9 @@ export default function Home() {
                 </p>
               </div>
 
-              <motion.a
-                href="/contact"
-                className="relative inline-flex items-center justify-center w-[151px] h-[49px] text-[12px] uppercase tracking-[0.2em] font-medium text-white group"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {/* Custom SVG Background from ButtonStyle.svg */}
-                <svg
-                  width="151"
-                  height="49"
-                  viewBox="0 0 151 49"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="absolute inset-0 w-full h-full"
-                >
-                  <path d="M1 38V1H111" stroke="white" strokeOpacity="0.5" />
-                  <path d="M150 11V48H41" stroke="white" strokeOpacity="0.5" />
-                  <path d="M110 1H130H150V11" stroke="white" strokeWidth="2" />
-                  <path d="M41 48H0.999999V38" stroke="white" strokeWidth="2" />
-                </svg>
-                <span className="relative z-10">Get a quote</span>
-              </motion.a>
+              <BracketButton href="/contact" color="white">
+                Get a quote
+              </BracketButton>
             </motion.div>
           </div>
 

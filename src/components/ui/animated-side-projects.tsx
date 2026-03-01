@@ -44,7 +44,8 @@ export default function AnimatedSideProjects() {
             <div
                 className="absolute pointer-events-none z-20"
                 style={{
-                    right: `-${SVG_WIDTH / 2}px`,
+                    // Moved further right by 60px to clear the headline
+                    right: `-${(SVG_WIDTH / 2) + 60}px`,
                     top: "55%",
                     transform: "translateY(-50%)",
                     width: SVG_WIDTH,

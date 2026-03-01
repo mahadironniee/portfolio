@@ -11,22 +11,20 @@ import { motion, AnimatePresence } from "framer-motion";
 function NavbarInner({
     textColor,
     isHovered,
-    isBurgerHovered,
     onMouseEnter,
     onMouseLeave,
-    onBurgerEnter,
-    onBurgerLeave,
-    lockedPathname
+    lockedPathname,
+    isLogoHovered,
+    setIsLogoHovered
 }: {
     textColor: string;
     isHovered: boolean;
-    isBurgerHovered: boolean;
     setIsHovered: (val: boolean) => void;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
-    onBurgerEnter: () => void;
-    onBurgerLeave: () => void;
     lockedPathname?: string;
+    isLogoHovered: boolean;
+    setIsLogoHovered: (val: boolean) => void;
 }) {
     const rawPathname = usePathname();
     const pathname = lockedPathname || rawPathname;
@@ -35,8 +33,6 @@ function NavbarInner({
     const isProjectDetail = pathname.startsWith("/projects/") && pathname !== "/projects";
     const isProjects = pathname === "/projects" || isProjectDetail;
     const isSpecialPage = isAbout || isProjects;
-
-    const [isLogoHovered, setIsLogoHovered] = useState(false);
 
     const navItems = {
         home: { label: "Home", href: "/" },
@@ -67,11 +63,11 @@ function NavbarInner({
             style={{ color: textColor }}
         >
             {/* Left: Profile Picture - Dynamic 36px -> 40px transition */}
-            <div className="pointer-events-auto ml-4 md:ml-32 flex items-center justify-center w-[40px] h-[40px]">
+            <div className={`pointer-events-auto ml-4 md:ml-32 flex items-center justify-center w-[40px] h-[40px]`}>
                 {isProjectDetail ? (
                     <button
                         onClick={() => router.back()}
-                        className="relative w-[36px] h-[36px] rounded-full overflow-hidden block group bg-white/0 transition-all duration-300 ease-out hover:w-[40px] hover:h-[40px] outline-none select-none"
+                        className={`relative rounded-full overflow-hidden block bg-white/0 transition-all duration-300 ease-out outline-none select-none ${isLogoHovered ? 'w-[40px] h-[40px]' : 'w-[36px] h-[36px]'}`}
                         onMouseEnter={() => setIsLogoHovered(true)}
                         onMouseLeave={() => setIsLogoHovered(false)}
                         aria-label="Go back"
@@ -89,7 +85,7 @@ function NavbarInner({
                                     animate={{ x: 0, opacity: 1 }}
                                     className="relative"
                                 >
-                                    <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform duration-300" />
+                                    <ArrowLeft size={20} className={`transition-transform duration-300 ${isLogoHovered ? '-translate-x-1' : 'translate-x-0'}`} />
                                 </motion.div>
                             </div>
                         </div>
@@ -97,7 +93,7 @@ function NavbarInner({
                 ) : (
                     <Link
                         href={isSpecialPage ? "/" : "/about"}
-                        className="relative w-[36px] h-[36px] rounded-full overflow-hidden block group bg-white/0 transition-all duration-300 ease-out hover:w-[40px] hover:h-[40px] outline-none select-none"
+                        className={`relative rounded-full overflow-hidden block bg-white/0 transition-all duration-300 ease-out outline-none select-none ${isLogoHovered ? 'w-[40px] h-[40px]' : 'w-[36px] h-[36px]'}`}
                         onMouseEnter={() => setIsLogoHovered(true)}
                         onMouseLeave={() => setIsLogoHovered(false)}
                     >
@@ -107,12 +103,12 @@ function NavbarInner({
                                 src="/images/profile.png"
                                 alt="Profile"
                                 className={`w-full h-full object-cover transition-all duration-400 
-                                    ${isSpecialPage ? 'blur-[3px] opacity-40 scale-110' : 'group-hover:blur-[2px] group-hover:opacity-40 group-hover:scale-110'}`}
+                                    ${isSpecialPage ? 'blur-[3px] opacity-40 scale-110' : (isLogoHovered ? 'blur-[2px] opacity-40 scale-110' : '')}`}
                             />
 
                             {/* Overlay Icon - Dynamic based on page */}
                             <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 
-                                ${isSpecialPage ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                                ${isSpecialPage ? 'opacity-100' : (isLogoHovered ? 'opacity-100' : 'opacity-0')}`}
                             >
                                 {isSpecialPage ? (
                                     <div className="relative w-5 h-5 pointer-events-none">
@@ -149,7 +145,7 @@ function NavbarInner({
                                         </svg>
                                     </div>
                                 ) : (
-                                    <ArrowUpRight size={18} className="translate-y-1 -translate-x-1 group-hover:translate-y-0 group-hover:translate-x-0 transition-transform duration-300 ease-out" />
+                                    <ArrowUpRight size={18} className={`transition-transform duration-300 ease-out ${isLogoHovered ? 'translate-y-0 translate-x-0' : 'translate-y-1 -translate-x-1'}`} />
                                 )}
                             </div>
                         </div>
@@ -281,8 +277,8 @@ function NavbarInner({
                                     {isAbout ? "About" : "Projects"}
                                 </span>
                             ) : (
-                                <svg width="49" height="16" viewBox="0 0 49 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: textColor }}>
-                                    <path d="M0 15.1465V0.107422H1.86914V6.66016H3.80273V8.48633H1.86914V15.1465H0ZM4.87695 8.48633V6.66016H6.78906V0.107422H8.67969V15.1465H6.78906V8.48633H4.87695ZM11.697 10.957V3.88867C11.697 3.12956 12.0192 2.35612 12.6637 1.56836C13.5231 0.537109 14.6117 0.0143229 15.9294 0V1.86914C15.0557 1.86914 14.3753 2.31315 13.8884 3.20117C13.6878 3.58789 13.5876 3.93164 13.5876 4.23242V10.957C13.5876 11.8594 14.0316 12.5612 14.9196 13.0625C15.292 13.2773 15.6214 13.3848 15.9079 13.3848V15.2539C15.0915 15.2539 14.2751 14.9603 13.4587 14.373C12.2985 13.5137 11.7113 12.375 11.697 10.957ZM17.0895 15.2539V13.3848C17.5908 13.3848 18.0993 13.1628 18.6149 12.7188C19.1592 12.2318 19.4385 11.6445 19.4528 10.957V4.23242C19.4528 3.67383 19.2236 3.13672 18.7653 2.62109C18.2927 2.13411 17.7341 1.88346 17.0895 1.86914V0C18.5361 0 19.6963 0.623047 20.57 1.86914C21.0713 2.58529 21.322 3.25846 21.322 3.88867V10.957C21.322 12.5469 20.613 13.7643 19.195 14.6094C18.4502 15.0391 17.7484 15.2539 17.0895 15.2539ZM24.3822 15.1465V4.4043H24.5755L26.2513 8.48633V15.1465H24.3822ZM24.3822 1.28906V0.107422H25.9076L30.849 12.0742L34.3724 4.10352H34.5873V8.27148L31.558 15.1465H30.14L24.3822 1.28906ZM35.6615 15.1465V0.107422H37.5306V15.1465H35.6615ZM40.6338 15.1465V0.107422H48.4541V1.95508H42.503V6.72461H46.4346V8.59375H42.503V13.2988H48.4541V15.1465H40.6338Z" fill="currentColor" />
+                                <svg width="42" height="14" viewBox="0 0 42 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: textColor }}>
+                                    <path transform="scale(0.85)" d="M0 15.1465V0.107422H1.86914V6.66016H3.80273V8.48633H1.86914V15.1465H0ZM4.87695 8.48633V6.66016H6.78906V0.107422H8.67969V15.1465H6.78906V8.48633H4.87695ZM11.697 10.957V3.88867C11.697 3.12956 12.0192 2.35612 12.6637 1.56836C13.5231 0.537109 14.6117 0.0143229 15.9294 0V1.86914C15.0557 1.86914 14.3753 2.31315 13.8884 3.20117C13.6878 3.58789 13.5876 3.93164 13.5876 4.23242V10.957C13.5876 11.8594 14.0316 12.5612 14.9196 13.0625C15.292 13.2773 15.6214 13.3848 15.9079 13.3848V15.2539C15.0915 15.2539 14.2751 14.9603 13.4587 14.373C12.2985 13.5137 11.7113 12.375 11.697 10.957ZM17.0895 15.2539V13.3848C17.5908 13.3848 18.0993 13.1628 18.6149 12.7188C19.1592 12.2318 19.4385 11.6445 19.4528 10.957V4.23242C19.4528 3.67383 19.2236 3.13672 18.7653 2.62109C18.2927 2.13411 17.7341 1.88346 17.0895 1.86914V0C18.5361 0 19.6963 0.623047 20.57 1.86914C21.0713 2.58529 21.322 3.25846 21.322 3.88867V10.957C21.322 12.5469 20.613 13.7643 19.195 14.6094C18.4502 15.0391 17.7484 15.2539 17.0895 15.2539ZM24.3822 15.1465V4.4043H24.5755L26.2513 8.48633V15.1465H24.3822ZM24.3822 1.28906V0.107422H25.9076L30.849 12.0742L34.3724 4.10352H34.5873V8.27148L31.558 15.1465H30.14L24.3822 1.28906ZM35.6615 15.1465V0.107422H37.5306V15.1465H35.6615ZM40.6338 15.1465V0.107422H48.4541V1.95508H42.503V6.72461H46.4346V8.59375H42.503V13.2988H48.4541V15.1465H40.6338Z" fill="currentColor" />
                                 </svg>
                             )}
                         </Link>
@@ -329,6 +325,7 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
     const [baseMask, setBaseMask] = useState(isDarkPage ? "linear-gradient(to bottom, transparent 0px, transparent 600px)" : "none");
 
     const [isHovered, setIsHovered] = useState(false);
+    const [isLogoHovered, setIsLogoHovered] = useState(false);
     const navHeight = 600;
     const containerRef = useRef<HTMLDivElement>(null);
     const [isTransitioning, setIsTransitioning] = useState(true);
@@ -431,19 +428,7 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
         setHoverTimeout(timeout);
     };
 
-    // Burger Menu Hover logic
-    const [isBurgerHovered, setIsBurgerHovered] = useState(false);
-    const [burgerHoverTimeout, setBurgerHoverTimeout] = useState<NodeJS.Timeout | null>(null);
-    const handleBurgerEnter = () => {
-        if (burgerHoverTimeout) clearTimeout(burgerHoverTimeout);
-        setIsBurgerHovered(true);
-    };
-    const handleBurgerLeave = () => {
-        const timeout = setTimeout(() => {
-            setIsBurgerHovered(false);
-        }, 100);
-        setBurgerHoverTimeout(timeout);
-    };
+
 
     return (
         <div ref={containerRef}>
@@ -466,12 +451,11 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
                     <NavbarInner
                         textColor="white"
                         isHovered={isHovered}
-                        isBurgerHovered={isBurgerHovered}
                         setIsHovered={setIsHovered}
+                        isLogoHovered={isLogoHovered}
+                        setIsLogoHovered={setIsLogoHovered}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
-                        onBurgerEnter={handleBurgerEnter}
-                        onBurgerLeave={handleBurgerLeave}
                         lockedPathname={lockedPathname}
                     />
                 </div>
@@ -479,17 +463,20 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
                 {/* Layer 2: Overlay (Dark Text), Masked to Section */}
                 <div
                     className="absolute inset-0 overflow-hidden"
-                    style={{ clipPath: clipPath, pointerEvents: clipPath.includes("100%") ? "none" : undefined }}
+                    style={{
+                        clipPath: clipPath,
+                        // If the clipPath is 100% hidden, completely disable pointer events so it doesn't block the visible layer
+                        pointerEvents: clipPath.includes("100%") ? "none" : "auto"
+                    }}
                 >
                     <NavbarInner
                         textColor="#000121"
                         isHovered={isHovered}
-                        isBurgerHovered={isBurgerHovered}
                         setIsHovered={setIsHovered}
+                        isLogoHovered={isLogoHovered}
+                        setIsLogoHovered={setIsLogoHovered}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
-                        onBurgerEnter={handleBurgerEnter}
-                        onBurgerLeave={handleBurgerLeave}
                         lockedPathname={lockedPathname}
                     />
                 </div>

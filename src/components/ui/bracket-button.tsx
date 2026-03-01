@@ -8,7 +8,6 @@ interface BracketButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     color?: "white" | "black";
     className?: string;
     children: React.ReactNode;
-
 }
 
 export default function BracketButton({
@@ -18,15 +17,31 @@ export default function BracketButton({
     children,
     ...props
 }: BracketButtonProps) {
-    const borderColorClass = color === "white" ? "border-white" : "border-black";
-    const textColorClass = color === "white" ? "text-white" : "text-black";
+    const strokeColor = color === "white" ? "white" : "#000121";
 
     const content = (
-        <div className={`relative group cursor-pointer inline-flex items-center justify-center ${className}`}>
-            <div className={`absolute -top-3 -right-3 w-4 h-4 border-t-2 border-r-2 ${borderColorClass} opacity-40 group-hover:opacity-100 transition-opacity duration-300`} />
-            <div className={`absolute -bottom-3 -left-3 w-4 h-4 border-b-2 border-l-2 ${borderColorClass} opacity-40 group-hover:opacity-100 transition-opacity duration-300`} />
-
-            <span className={`${textColorClass} text-xs font-bold tracking-[0.3em] uppercase px-4 py-2`}>
+        <div className={`relative group cursor-pointer inline-flex items-center justify-center min-w-[151px] h-[49px] ${className}`}>
+            {/* SVG bracket border */}
+            <svg
+                width="151"
+                height="49"
+                viewBox="0 0 151 49"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="absolute inset-0 w-full h-full"
+                preserveAspectRatio="none"
+            >
+                {/* Thin lines (50% opacity) */}
+                <path d="M1 38V1H111" stroke={strokeColor} strokeOpacity="0.5" />
+                <path d="M150 11V48H41" stroke={strokeColor} strokeOpacity="0.5" />
+                {/* Thick corner accents */}
+                <path d="M110 1H130H150V11" stroke={strokeColor} strokeWidth="2" />
+                <path d="M41 48H0.999999V38" stroke={strokeColor} strokeWidth="2" />
+            </svg>
+            <span
+                className="relative z-10 text-xs font-bold tracking-[0.3em] uppercase px-4 py-2"
+                style={{ color: strokeColor }}
+            >
                 {children}
             </span>
         </div>
@@ -34,14 +49,14 @@ export default function BracketButton({
 
     if (href) {
         return (
-            <Link href={href}>
+            <Link href={href} className="inline-block hover:scale-105 active:scale-95 transition-transform">
                 {content}
             </Link>
         );
     }
 
     return (
-        <button {...props} className="outline-none bg-transparent border-none p-0 m-0">
+        <button {...props} className="outline-none bg-transparent border-none p-0 m-0 hover:scale-105 active:scale-95 transition-transform">
             {content}
         </button>
     );
