@@ -11,15 +11,21 @@ import { motion, AnimatePresence } from "framer-motion";
 function NavbarInner({
     textColor,
     isHovered,
+    isBurgerHovered,
     onMouseEnter,
     onMouseLeave,
+    onBurgerEnter,
+    onBurgerLeave,
     lockedPathname
 }: {
     textColor: string;
     isHovered: boolean;
+    isBurgerHovered: boolean;
     setIsHovered: (val: boolean) => void;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
+    onBurgerEnter: () => void;
+    onBurgerLeave: () => void;
     lockedPathname?: string;
 }) {
     const rawPathname = usePathname();
@@ -181,7 +187,7 @@ function NavbarInner({
                                         <Link
                                             href="#contact"
                                             className="text-[11px] font-bold tracking-[0.2em] uppercase opacity-50 hover:opacity-100 transition-opacity"
-                                            style={{ color: textColor }}
+                                            style={{ color: textColor, fontFamily: 'var(--font-post-no-bills)' }}
                                         >
                                             Contact
                                         </Link>
@@ -214,7 +220,7 @@ function NavbarInner({
                                             <Link
                                                 href={node1_Left.href}
                                                 className="text-[11px] font-bold tracking-[0.2em] uppercase opacity-50 hover:opacity-100 transition-opacity absolute right-[12px] whitespace-nowrap z-20 pointer-events-auto"
-                                                style={{ color: textColor }}
+                                                style={{ color: textColor, fontFamily: 'var(--font-post-no-bills)' }}
                                             >
                                                 {node1_Left.label}
                                             </Link>
@@ -231,7 +237,7 @@ function NavbarInner({
                                                 <Link
                                                     href={node1_Right.href}
                                                     className="text-[11px] font-bold tracking-[0.2em] uppercase opacity-50 hover:opacity-100 transition-opacity whitespace-nowrap"
-                                                    style={{ color: textColor }}
+                                                    style={{ color: textColor, fontFamily: 'var(--font-post-no-bills)' }}
                                                 >
                                                     {node1_Right.label}
                                                 </Link>
@@ -254,7 +260,7 @@ function NavbarInner({
                                             <Link
                                                 href="/playground"
                                                 className="text-[11px] font-bold tracking-[0.2em] uppercase opacity-50 hover:opacity-100 transition-opacity absolute left-[12px] whitespace-nowrap z-20 pointer-events-auto"
-                                                style={{ color: textColor }}
+                                                style={{ color: textColor, fontFamily: 'var(--font-post-no-bills)' }}
                                             >
                                                 Playground
                                             </Link>
@@ -267,13 +273,18 @@ function NavbarInner({
                         {/* Main Link (Current Page Title) */}
                         <Link
                             href={pathname}
-                            className="text-sm font-medium tracking-wide cursor-pointer transition-opacity group-hover/tree:opacity-60 outline-none select-none relative z-0"
-                            style={{
-                                fontFamily: 'var(--font-inter)',
-                                color: textColor
-                            }}
+                            className="cursor-pointer transition-opacity group-hover/tree:opacity-60 outline-none select-none relative z-0 flex items-center"
+                            style={{ color: textColor }}
                         >
-                            {isAbout ? "About" : isProjects ? "Projects" : "Home"}
+                            {isAbout || isProjects ? (
+                                <span style={{ fontFamily: 'var(--font-post-no-bills)', fontWeight: 600, fontSize: 22, color: textColor }}>
+                                    {isAbout ? "About" : "Projects"}
+                                </span>
+                            ) : (
+                                <svg width="49" height="16" viewBox="0 0 49 16" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ color: textColor }}>
+                                    <path d="M0 15.1465V0.107422H1.86914V6.66016H3.80273V8.48633H1.86914V15.1465H0ZM4.87695 8.48633V6.66016H6.78906V0.107422H8.67969V15.1465H6.78906V8.48633H4.87695ZM11.697 10.957V3.88867C11.697 3.12956 12.0192 2.35612 12.6637 1.56836C13.5231 0.537109 14.6117 0.0143229 15.9294 0V1.86914C15.0557 1.86914 14.3753 2.31315 13.8884 3.20117C13.6878 3.58789 13.5876 3.93164 13.5876 4.23242V10.957C13.5876 11.8594 14.0316 12.5612 14.9196 13.0625C15.292 13.2773 15.6214 13.3848 15.9079 13.3848V15.2539C15.0915 15.2539 14.2751 14.9603 13.4587 14.373C12.2985 13.5137 11.7113 12.375 11.697 10.957ZM17.0895 15.2539V13.3848C17.5908 13.3848 18.0993 13.1628 18.6149 12.7188C19.1592 12.2318 19.4385 11.6445 19.4528 10.957V4.23242C19.4528 3.67383 19.2236 3.13672 18.7653 2.62109C18.2927 2.13411 17.7341 1.88346 17.0895 1.86914V0C18.5361 0 19.6963 0.623047 20.57 1.86914C21.0713 2.58529 21.322 3.25846 21.322 3.88867V10.957C21.322 12.5469 20.613 13.7643 19.195 14.6094C18.4502 15.0391 17.7484 15.2539 17.0895 15.2539ZM24.3822 15.1465V4.4043H24.5755L26.2513 8.48633V15.1465H24.3822ZM24.3822 1.28906V0.107422H25.9076L30.849 12.0742L34.3724 4.10352H34.5873V8.27148L31.558 15.1465H30.14L24.3822 1.28906ZM35.6615 15.1465V0.107422H37.5306V15.1465H35.6615ZM40.6338 15.1465V0.107422H48.4541V1.95508H42.503V6.72461H46.4346V8.59375H42.503V13.2988H48.4541V15.1465H40.6338Z" fill="currentColor" />
+                                </svg>
+                            )}
                         </Link>
                     </div>
 
@@ -420,6 +431,20 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
         setHoverTimeout(timeout);
     };
 
+    // Burger Menu Hover logic
+    const [isBurgerHovered, setIsBurgerHovered] = useState(false);
+    const [burgerHoverTimeout, setBurgerHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+    const handleBurgerEnter = () => {
+        if (burgerHoverTimeout) clearTimeout(burgerHoverTimeout);
+        setIsBurgerHovered(true);
+    };
+    const handleBurgerLeave = () => {
+        const timeout = setTimeout(() => {
+            setIsBurgerHovered(false);
+        }, 100);
+        setBurgerHoverTimeout(timeout);
+    };
+
     return (
         <div ref={containerRef}>
             <div
@@ -441,9 +466,12 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
                     <NavbarInner
                         textColor="white"
                         isHovered={isHovered}
+                        isBurgerHovered={isBurgerHovered}
                         setIsHovered={setIsHovered}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
+                        onBurgerEnter={handleBurgerEnter}
+                        onBurgerLeave={handleBurgerLeave}
                         lockedPathname={lockedPathname}
                     />
                 </div>
@@ -451,14 +479,17 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
                 {/* Layer 2: Overlay (Dark Text), Masked to Section */}
                 <div
                     className="absolute inset-0 overflow-hidden"
-                    style={{ clipPath: clipPath }}
+                    style={{ clipPath: clipPath, pointerEvents: clipPath.includes("100%") ? "none" : undefined }}
                 >
                     <NavbarInner
                         textColor="#000121"
                         isHovered={isHovered}
+                        isBurgerHovered={isBurgerHovered}
                         setIsHovered={setIsHovered}
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
+                        onBurgerEnter={handleBurgerEnter}
+                        onBurgerLeave={handleBurgerLeave}
                         lockedPathname={lockedPathname}
                     />
                 </div>

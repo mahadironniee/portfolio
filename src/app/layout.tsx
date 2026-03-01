@@ -30,7 +30,8 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Stick+No+Bills:wght@400&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Stick+No+Bills:wght@400;600&display=swap" rel="stylesheet" />
+        <style>{`:root { --font-post-no-bills: 'Stick No Bills', sans-serif; }`}</style>
       </head>
       <body
         className={`antialiased font-sans bg-[#0004D9] text-white ${dmSans.className} ${inter.variable}`}
@@ -40,6 +41,7 @@ export default function RootLayout({
         {/* Global Hue Blend Overlay */}
         <div className="fixed inset-0 z-50 pointer-events-none bg-[#76CA00] opacity-[0.16] mix-blend-hue" />
 
+        <Navbar />
         <PageTransition>
           {children}
         </PageTransition>

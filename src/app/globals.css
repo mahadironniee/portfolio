@@ -27,3 +27,40 @@ p {
 @utility text-shadow-sm {
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
+
+/* Burger Menu */
+.burger-icon {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px;
+}
+.burger-icon .burger-left,
+.burger-icon .burger-right {
+  display: block;
+  background: currentColor;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              border-radius 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.burger-icon .burger-left {
+  width: 7px;
+  height: 16px;
+  border-radius: 0.5px;
+}
+.burger-icon .burger-right {
+  width: 10px;
+  height: 28px;
+  border-radius: 1px;
+}
+.burger-icon:hover .burger-left {
+  width: 10px;
+  height: 28px;
+  border-radius: 1px;
+}
+.burger-icon:hover .burger-right {
+  width: 7px;
+  height: 16px;
+  border-radius: 0.5px;
+}
