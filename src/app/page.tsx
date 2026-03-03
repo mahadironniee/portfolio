@@ -11,6 +11,7 @@ import CTASection from "@/components/cta-section";
 import Footer from "@/components/layout/footer";
 import AnimatedSideProjects from "@/components/ui/animated-side-projects";
 import SecondSection from "@/components/second-section";
+import WorksSection from "@/components/works-section";
 
 export default function Home() {
   const pupilX = useMotionValue(0);
@@ -260,6 +261,7 @@ export default function Home() {
         {/* Scrollable Content Sections */}
         <div className="relative z-10 bg-[#F5F5FA] light-bg-nav-trigger">
           <SecondSection />
+          <WorksSection />
           <ProjectsSection />
           <ServicesSection />
           <CTASection />
