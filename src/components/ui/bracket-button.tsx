@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, useMotionValue, animate } from "framer-motion";
 
 interface BracketButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     href?: string;
@@ -10,6 +10,14 @@ interface BracketButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     className?: string;
     children: React.ReactNode;
 }
+
+// Full rectangle perimeter: 2*(149+47) = 392px
+// L-bracket length = 50px. Gap = 342px.
+// Corner positions on the rect path:
+// Top-Right: -109
+// Bottom-Right: -186
+// Bottom-Left: -305
+// Top-Left: -382
 
 export default function BracketButton({
     href,
@@ -20,12 +28,66 @@ export default function BracketButton({
 }: BracketButtonProps) {
     const [isHovered, setIsHovered] = useState(false);
 
-    // The "base" color of the stroke/text when NOT hovered
     const baseColor = color === "white" ? "white" : "#000121";
-    // The color of the strokes/text when HOVERED
     const hoverColor = "white";
-    // The background fill color on hover - Pure black for studio look
     const hoverBg = "#000000";
+
+    const offsetA = useMotionValue(-109);
+    const offsetB = useMotionValue(-305);
+
+    useEffect(() => {
+        if (!isHovered) {
+            // Unhovered: continue moving indefinitely at 392px per 5 seconds
+            // 392000px over 5000s ensures it loops smoothly for a long time
+            const controlsA = animate(offsetA, offsetA.get() - 392000, {
+                duration: 5000,
+                ease: "linear",
+            });
+            const controlsB = animate(offsetB, offsetB.get() - 392000, {
+                duration: 5000,
+                ease: "linear",
+            });
+            return () => {
+                controlsA.stop();
+                controlsB.stop();
+            };
+        } else {
+            // Hovered: calculate nearest corner and spring to it
+            const getNearestTarget = (current: number) => {
+                const baseTargets = [-109, -186, -305, -382];
+                let bestTarget = current;
+                let minDiff = Infinity;
+
+                for (const t of baseTargets) {
+                    let diff = (t - current) % 392;
+                    // Normalize difference to shortest path (-196 to 196)
+                    if (diff > 196) diff -= 392;
+                    if (diff < -196) diff += 392;
+
+                    if (Math.abs(diff) < minDiff) {
+                        minDiff = Math.abs(diff);
+                        bestTarget = current + diff;
+                    }
+                }
+                return bestTarget;
+            };
+
+            const controlsA = animate(offsetA, getNearestTarget(offsetA.get()), {
+                type: "spring",
+                stiffness: 400,
+                damping: 40,
+            });
+            const controlsB = animate(offsetB, getNearestTarget(offsetB.get()), {
+                type: "spring",
+                stiffness: 400,
+                damping: 40,
+            });
+            return () => {
+                controlsA.stop();
+                controlsB.stop();
+            };
+        }
+    }, [isHovered, offsetA, offsetB]);
 
     const content = (
         <div
@@ -53,39 +115,36 @@ export default function BracketButton({
                 className="absolute inset-0 w-full h-full z-10"
                 preserveAspectRatio="none"
             >
-                {/* Thin lines (fading out on hover) */}
-                <motion.path
-                    d="M1 38V1H111"
+                {/* ── Full rectangle mild "track" ── */}
+                <motion.rect
+                    x="1" y="1" width="149" height="47"
                     initial={false}
                     animate={{
                         stroke: baseColor,
-                        strokeOpacity: isHovered ? 0 : 0.5
+                        strokeOpacity: isHovered ? 0 : 0.3,
                     }}
-                    transition={{ duration: 0.2 }}
-                />
-                <motion.path
-                    d="M150 11V48H41"
-                    initial={false}
-                    animate={{
-                        stroke: baseColor,
-                        strokeOpacity: isHovered ? 0 : 0.5
-                    }}
-                    transition={{ duration: 0.2 }}
+                    transition={{ duration: 0.25 }}
                 />
 
-                {/* Thick corner accents (always visible, converting to white if needed) */}
-                <motion.path
-                    d="M110 1H130H150V11"
+                {/* ── Dynamic Corner Brackets / Train Segments ── */}
+                <motion.rect
+                    x="1" y="1" width="149" height="47"
+                    strokeWidth="2"
+                    strokeLinecap="square"
+                    strokeDasharray="50 342"
+                    style={{ strokeDashoffset: offsetA }}
                     initial={false}
                     animate={{ stroke: isHovered ? hoverColor : baseColor }}
-                    strokeWidth="2"
                     transition={{ duration: 0.3 }}
                 />
-                <motion.path
-                    d="M41 48H0.999999V38"
+                <motion.rect
+                    x="1" y="1" width="149" height="47"
+                    strokeWidth="2"
+                    strokeLinecap="square"
+                    strokeDasharray="50 342"
+                    style={{ strokeDashoffset: offsetB }}
                     initial={false}
                     animate={{ stroke: isHovered ? hoverColor : baseColor }}
-                    strokeWidth="2"
                     transition={{ duration: 0.3 }}
                 />
             </svg>
