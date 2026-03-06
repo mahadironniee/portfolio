@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { motion, useMotionValue, animate, useScroll, useTransform } from "framer-motion";
 import HeadingSvg from "@/components/ui/heading-svg";
 import SmokeCanvas from "@/components/ui/smoke-canvas";
+import GeometricBackground from "@/components/ui/geometric-background";
 
 const GREY = "#BABABA";
 const DARK = "#515055";
@@ -21,8 +22,15 @@ export default function SecondSection() {
         offset: ["start end", "end start"],
     });
 
+    // Geometric background scrolling
+    const backgroundX = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"], { clamp: true });
+    const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"], { clamp: true });
+
+    // Map scroll progress for "unfill" animation
+    // When section enters (scrollYProgress 0 to 0.5), the blocks unfill (isInverse=true)
+    const geoProgress = useTransform(scrollYProgress, [0, 0.5], [0, 1], { clamp: true });
+
     // Map scroll progress to a height percentage for the blue lines.
-    // The top lines fill as the section enters the screen
     const topLineHeight = useTransform(scrollYProgress, [0, 0.25], ["0%", "100%"]);
 
     // Calculate when the BOTTOM of the section intersects the BOTTOM of the viewport
@@ -97,9 +105,23 @@ export default function SecondSection() {
     }, [fillValue]);
 
     return (
-        <section ref={sectionRef} className="relative w-full h-[100dvh] bg-[#F5F5FA] flex flex-col items-center justify-center px-6 overflow-hidden light-bg-nav-trigger">
+        <section ref={sectionRef} className="relative w-full h-[100dvh] flex flex-col items-center justify-center px-6 overflow-hidden light-bg-nav-trigger">
+            {/* Reusable Geometric Background - Cut-out mask mode */}
+            <GeometricBackground
+                progress={geoProgress}
+                x={backgroundX}
+                y={backgroundY}
+                opacity={0.3}
+                isMask={true}
+                isInverse={true}
+                maskBaseColor="#F5F5FA"
+                triggerRange={[0, 1]}
+                strokeColor="#E1E1E6"
+            />
+
             {/* Top vertical lines */}
-            <div className="absolute top-0 left-0 w-full h-[244px] px-6 flex justify-between pointer-events-none">
+            {/* Top vertical lines - Commented out for future use */}
+            {/* <div className="absolute top-0 left-0 w-full h-[244px] px-6 flex justify-between pointer-events-none">
                 {[...Array(9)].map((_, i) => (
                     <div key={`top-${i}`} className="relative w-[4px] h-full bg-[#E1E1E6] rounded-b-[4px] overflow-hidden">
                         <motion.div
@@ -111,7 +133,7 @@ export default function SecondSection() {
                         />
                     </div>
                 ))}
-            </div>
+            </div> */}
 
             <div className="w-full flex flex-col items-center justify-center z-10">
                 {/* ref is on the SVG wrapper — only this bounds box triggers hover */}

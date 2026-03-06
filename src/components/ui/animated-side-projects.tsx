@@ -81,7 +81,10 @@ export default function AnimatedSideProjects() {
                                 animationDelay: `${delay}s`,
                             }}
                         >
-                            <div className="w-full h-full rounded-lg overflow-hidden border border-white/10 relative">
+                            <div
+                                className="w-full h-full rounded-lg overflow-hidden border border-white/30 relative"
+                            >
+
                                 <Image
                                     src={project.src}
                                     alt={project.alt}
