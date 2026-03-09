@@ -273,9 +273,15 @@ function NavbarInner({
                             )}
                         </AnimatePresence>
 
-                        {/* Main Link (Current Page Title) */}
+                        {/* Main Link (Home Button) */}
                         <Link
-                            href={pathname}
+                            href="/"
+                            onClick={(e) => {
+                                if (pathname === "/") {
+                                    e.preventDefault();
+                                    window.scrollTo({ top: 0, behavior: "smooth" });
+                                }
+                            }}
                             className="cursor-pointer transition-opacity group-hover/tree:opacity-60 outline-none select-none relative z-0 flex items-center"
                             style={{ color: textColor }}
                         >

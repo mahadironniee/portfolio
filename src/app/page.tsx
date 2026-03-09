@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, MotionValue } from "framer-motion";
 import Image from "next/image";
 import BracketButton from "@/components/ui/bracket-button";
 import ServicesSection from "@/components/services-section";
@@ -12,6 +12,7 @@ import AnimatedSideProjects from "@/components/ui/animated-side-projects";
 import BlackHoleSideProjects, { PROJECTS } from "@/components/ui/blackhole-side-projects";
 import SecondSection from "@/components/second-section";
 import WorksSection from "@/components/works-section";
+import ThunderRainBackground from "@/components/ui/thunder-rain-background";
 
 const TypewriterText = ({
   title,
@@ -143,6 +144,18 @@ export default function Home() {
   const scaleSpringConfig = { damping: 25, stiffness: 150, mass: 0.4 };
   const smoothScale = useSpring(pupilScale, scaleSpringConfig);
 
+  const eyeHoverMotion = useMotionValue(0);
+  const smoothEyeHover = useSpring(eyeHoverMotion, { stiffness: 400, damping: 25 });
+
+  const finalPupilScaleX = useTransform(
+    [smoothScale, smoothEyeHover] as MotionValue<number>[],
+    ([scale, hover]: number[]) => scale * (1 - hover) + 1.4 * hover
+  );
+  const finalPupilScaleY = useTransform(
+    [smoothScale, smoothEyeHover] as MotionValue<number>[],
+    ([scale, hover]: number[]) => scale * (1 - hover) + 0.15 * hover
+  );
+
   // Socket physics - stiffer, subtle and delayed 
   // It represents the firmer mass of the whole eyeball shifting
   const socketSpringConfig = { damping: 25, stiffness: 180, mass: 0.6 };
@@ -220,6 +233,7 @@ export default function Home() {
           id="hero"
           className="sticky top-0 w-full h-[100dvh] bg-[#0004D9] overflow-hidden flex flex-col items-center z-0 pt-[147px]"
         >
+          <ThunderRainBackground />
 
           {/* Top Left Frame Line */}
           <motion.div
@@ -259,7 +273,9 @@ export default function Home() {
             {/* Dynamic wrapper for the whole white socket, driven by its own physics */}
             <motion.div
               ref={eyeRef}
-              className="absolute pointer-events-none"
+              className="absolute pointer-events-auto cursor-pointer"
+              onMouseEnter={() => eyeHoverMotion.set(1)}
+              onMouseLeave={() => eyeHoverMotion.set(0)}
               style={{
                 width: 39,
                 height: 39,
@@ -282,7 +298,8 @@ export default function Home() {
                   top: 7.5,
                   x: smoothX,
                   y: smoothY,
-                  scale: smoothScale,
+                  scaleX: finalPupilScaleX,
+                  scaleY: finalPupilScaleY,
                 }}
               >
                 {/* Inner wrapper handles the continuous blinking via CSS */}
