@@ -42,8 +42,8 @@ export default function BurgerMenu({ className }: { className?: string }) {
     return (
         <div ref={containerRef} className={`burger-icon flex items-center justify-center w-[44px] h-[44px] cursor-pointer ${className || ""}`}>
             <div className="relative w-[21px] h-[28px] flex items-center">
-                <span className="burger-left absolute left-0 block bg-current transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" />
-                <span className="burger-right absolute right-0 block bg-current transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" />
+                <span className="burger-left absolute left-0 block transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" style={{ backgroundColor: 'currentColor' }} />
+                <span className="burger-right absolute right-0 block transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" style={{ backgroundColor: 'currentColor' }} />
             </div>
         </div>
     );

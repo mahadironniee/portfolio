@@ -8,6 +8,8 @@ interface BracketButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     href?: string;
     color?: "white" | "black";
     className?: string;
+    isStatic?: boolean;
+    isWireframe?: boolean;
     children: React.ReactNode;
 }
 
@@ -23,19 +25,27 @@ export default function BracketButton({
     href,
     color = "white",
     className = "",
+    isStatic = false,
+    isWireframe = false,
     children,
     ...props
 }: BracketButtonProps) {
     const [isHovered, setIsHovered] = useState(false);
-
-    const baseColor = color === "white" ? "white" : "#000121";
-    const hoverColor = "white";
-    const hoverBg = "#000000";
+    const baseColor = isStatic ? "#D9D9D9" : (isWireframe ? "#D9D9D9" : (color === "white" ? "white" : "#000000"));
+    const textColor = isStatic ? "#D9D9D9" : (isWireframe ? "#FFFFFF" : baseColor);
+    const hoverColor = color === "white" ? "#000000" : "#FFFFFF";
+    const hoverBg = isStatic ? "transparent" : "#0066FF";
 
     const offsetA = useMotionValue(-109);
     const offsetB = useMotionValue(-305);
 
     useEffect(() => {
+        if (isStatic) {
+            offsetA.set(-109);
+            offsetB.set(-305);
+            return;
+        }
+
         if (!isHovered) {
             // Unhovered: continue moving indefinitely at 392px per 5 seconds
             // 392000px over 5000s ensures it loops smoothly for a long time
@@ -87,11 +97,11 @@ export default function BracketButton({
                 controlsB.stop();
             };
         }
-    }, [isHovered, offsetA, offsetB]);
+    }, [isHovered, offsetA, offsetB, isStatic]);
 
     const content = (
         <div
-            className={`relative inline-flex items-center justify-center min-w-[151px] h-[49px] ${className}`}
+            className={`relative inline-flex items-center justify-center min-w-[151px] h-[49px] ${isStatic ? "pointer-events-none" : ""} ${className}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -100,9 +110,9 @@ export default function BracketButton({
                 className="absolute inset-0 z-0"
                 initial={false}
                 animate={{
-                    backgroundColor: isHovered ? hoverBg : "rgba(0,0,0,0)",
+                    backgroundColor: isHovered ? hoverBg : (isWireframe ? "#D9D9D9" : "rgba(0,0,0,0)"),
                 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+                transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }} // smooth ease-out (similar to easeOutCirc)
             />
 
             {/* SVG bracket border */}
@@ -134,7 +144,7 @@ export default function BracketButton({
                     strokeDasharray="50 342"
                     style={{ strokeDashoffset: offsetA }}
                     initial={false}
-                    animate={{ stroke: isHovered ? hoverColor : baseColor }}
+                    animate={{ stroke: baseColor }}
                     transition={{ duration: 0.3 }}
                 />
                 <motion.rect
@@ -144,7 +154,7 @@ export default function BracketButton({
                     strokeDasharray="50 342"
                     style={{ strokeDashoffset: offsetB }}
                     initial={false}
-                    animate={{ stroke: isHovered ? hoverColor : baseColor }}
+                    animate={{ stroke: baseColor }}
                     transition={{ duration: 0.3 }}
                 />
             </svg>
@@ -153,7 +163,7 @@ export default function BracketButton({
             <motion.span
                 className="relative z-20 text-xs font-bold tracking-[0.3em] uppercase px-4 py-2"
                 initial={false}
-                animate={{ color: isHovered ? hoverColor : baseColor }}
+                animate={{ color: isStatic ? (isWireframe ? "#FFFFFF" : "#D9D9D9") : (isHovered ? hoverColor : textColor) }}
                 transition={{ duration: 0.3 }}
             >
                 {children}
@@ -161,7 +171,7 @@ export default function BracketButton({
         </div>
     );
 
-    const wrapperClass = "inline-block active:scale-95 transition-transform duration-200 outline-none";
+    const wrapperClass = `inline-block active:scale-95 transition-transform duration-200 outline-none ${isStatic ? "pointer-events-none" : ""}`;
 
     if (href) {
         return (

@@ -5,6 +5,13 @@ html {
   width: 100%;
 }
 
+/* Tags for Navbar theme detection */
+html[data-preloading="true"] .preloader-active {
+  color: #D9D9D9 !important;
+  fill: #D9D9D9 !important;
+  border-color: #D9D9D9 !important;
+}
+
 body {
   overscroll-behavior: auto;
   position: relative;
@@ -13,7 +20,7 @@ body {
 }
 
 @theme {
-  --color-brand-blue: #0004D9;
+  --color-brand-blue: #000000;
   --color-white: #F5F5FA;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-script: "Smooch", cursive;

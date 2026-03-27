@@ -1,127 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, MotionValue } from "framer-motion";
 import Image from "next/image";
+import { useMotionValue, useSpring, useTransform, motion, MotionValue, AnimatePresence } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import TypewriterText from "@/components/ui/typewriter-text";
+import { PROJECTS } from "@/components/ui/blackhole-side-projects";
+import dynamic from "next/dynamic";
 import BracketButton from "@/components/ui/bracket-button";
-import ServicesSection from "@/components/services-section";
-import ContactSection from "@/components/contact-section";
-import CTASection from "@/components/cta-section";
-import Footer from "@/components/layout/footer";
-import AnimatedSideProjects from "@/components/ui/animated-side-projects";
-import BlackHoleSideProjects, { PROJECTS } from "@/components/ui/blackhole-side-projects";
-import SecondSection from "@/components/second-section";
-import WorksSection from "@/components/works-section";
-import ThunderRainBackground from "@/components/ui/thunder-rain-background";
+import MotionTracker from "@/components/ui/motion-tracker";
 
-const TypewriterText = ({
-  title,
-  text,
-  isActive,
-  isPaused
-}: {
-  title: string;
-  text: string;
-  isActive: boolean;
-  isPaused?: boolean;
-}) => {
-  const [displayedText, setDisplayedText] = useState("");
-  const [currentText, setCurrentText] = useState("");
 
-  useEffect(() => {
-    // Only reset displayed text if the actual content changes
-    if (text && text !== currentText) {
-      setDisplayedText("");
-      setCurrentText(text);
-    }
-  }, [text, currentText]);
-
-  useEffect(() => {
-    if (!isActive || !text || displayedText === text) return;
-
-    let textI = displayedText.length;
-    let textInterval: NodeJS.Timeout;
-
-    const startDelay = setTimeout(() => {
-      textInterval = setInterval(() => {
-        setDisplayedText(text.slice(0, textI + 1));
-        textI++;
-        if (textI >= text.length) clearInterval(textInterval);
-      }, 15);
-    }, textI === 0 ? 600 : 0); // Halved delay (600ms) for faster response
-
-    return () => {
-      clearTimeout(startDelay);
-      if (textInterval) clearInterval(textInterval);
-    };
-  }, [text, isActive, displayedText.length]);
-
-  return (
-    <div className="flex flex-col mb-5 mt-15 text-left pl-2 md:pl-5 pr-0 translate-x-[25px] md:translate-x-[75px] min-w-[300px] w-full max-w-[648px]">
-      <div className="flex items-center mb-2 h-[29px]">
-        {/* Static Hash Icon */}
-        <svg
-          width="16"
-          height="29"
-          viewBox="0 0 16 29"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="inline-block mr-3 shrink-0"
-        >
-          <rect x="4.9375" width="3" height="28" rx="1" transform="rotate(7.90712 4.9375 0)" fill="#B0B8F2" />
-          <rect x="11.25" y="5" width="3" height="18.5438" rx="0.5" transform="rotate(8.86843 11.25 5)" fill="#B0B8F2" />
-          <rect y="11" width="16" height="3" rx="1" fill="#B0B8F2" />
-          <rect y="16" width="16" height="3" rx="1" fill="#B0B8F2" />
-        </svg>
-
-        {/* Title Roll Up Animation */}
-        <div className="overflow-hidden flex items-center h-full">
-          <AnimatePresence mode="wait">
-            {isActive && title ? (
-              <motion.h3
-                key={title}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="text-white font-bold tracking-wider text-[14px] uppercase mt-1 leading-none"
-              >
-                {title}
-              </motion.h3>
-            ) : null}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      {/* Description Typing */}
-      <div className="min-h-[60px] pl-[28px]">
-        <style>{`
-          @keyframes blink-fast {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-          }
-          .animate-blink-fast {
-            animation: blink-fast 0.8s step-end infinite;
-          }
-        `}</style>
-        <AnimatePresence>
-          {isActive && (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="text-[#CAD9FB] opacity-85 font-medium text-[17px] leading-[150%] tracking-[0.04em]"
-            >
-              {displayedText}
-              <span className="inline-block w-[6px] h-[12px] bg-[#CAD9FB] ml-[2px] mb-[-1px] animate-blink-fast" />
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-};
+const BlackHoleSideProjects = dynamic(
+  () => import("@/components/ui/blackhole-side-projects"),
+  { ssr: false }
+);
 
 export default function Home() {
   const [activeProjectIdx, setActiveProjectIdx] = useState(-1);
@@ -135,12 +27,160 @@ export default function Home() {
   const socketScaleY = useMotionValue(1);
   const eyeRef = React.useRef<HTMLDivElement>(null);
 
-  // Smooth, independent physics for the pupil (tightened tracking, life-like ease)
+  // --- Preloader Logic ---
+  const [preloaderState, setPreloaderState] = useState<"A" | "LOGO" | "NAV" | "QUOTE" | "PROJECTS_CENTER" | "PROJECTS_SPLIT" | "B" | "DONE">("A");
+  const [activeTarget, setActiveTarget] = useState(3);
+  const [isNavbarWireframe, setIsNavbarWireframe] = useState(true);
+  const [isLogoWireframe, setIsLogoWireframe] = useState(true);
+  const [isQuoteWireframe, setIsQuoteWireframe] = useState(true);
+  const [isProjectsDimmed, setIsProjectsDimmed] = useState(false);
+
+  useEffect(() => {
+    // Lock scrolling on mount
+    document.body.style.overflow = "hidden";
+
+    // 1. Initial State A (Headline Center) - 0-700ms
+
+    // 2. Move to LOGO
+    const tLogo = setTimeout(() => {
+      console.log(`[Preloader] 700ms - State LOGO`);
+      setPreloaderState("LOGO");
+    }, 700);
+
+    // 3. Unlock Logo
+    const tLogoReveal = setTimeout(() => {
+      console.log(`[Preloader] 1600ms - Logo Revealed`);
+      setIsLogoWireframe(false);
+    }, 1600);
+
+    // 4. Move to NAV
+    const tNav = setTimeout(() => {
+      console.log(`[Preloader] 1800ms - State NAV`);
+      setPreloaderState("NAV");
+    }, 1800);
+
+    // 5. Unlock Navbar
+    const tUnveil = setTimeout(() => {
+      console.log(`[Preloader] 2900ms - Navbar Revealed`);
+      setIsNavbarWireframe(false);
+    }, 2900);
+
+    // 6. Move to QUOTE
+    const tQuote = setTimeout(() => {
+      console.log(`[Preloader] 3300ms - State QUOTE`);
+      setPreloaderState("QUOTE");
+    }, 3300);
+
+    // 7. Unlock Quote Button
+    const tQuoteReveal = setTimeout(() => {
+      console.log(`[Preloader] 4300ms - Quote Button Revealed`);
+      setIsQuoteWireframe(false);
+    }, 4300);
+
+    // 8. Move to Side Projects Center (Magnifying Glass)
+    const tProjectsCenter = setTimeout(() => {
+      console.log(`[Preloader] 4800ms - State PROJECTS_CENTER`);
+      setPreloaderState("PROJECTS_CENTER");
+    }, 4800);
+
+    // 9. Split reticles and target small project cards
+    const tProjectsSplit = setTimeout(() => {
+      console.log(`[Preloader] 5900ms - State PROJECTS_SPLIT`);
+      setPreloaderState("PROJECTS_SPLIT");
+    }, 5900);
+
+    // 9.5. Dim the targeted cards (Wait for reticles to arrive)
+    const tProjectsDim = setTimeout(() => {
+      console.log(`[Preloader] 6900ms - Projects Dimmed`);
+      setIsProjectsDimmed(true);
+    }, 6900);
+
+    // 10. Return to Headline (after undim has time to visually animate)
+    const tReturn = setTimeout(() => {
+      console.log(`[Preloader] 8200ms - State A (Return)`);
+      setPreloaderState("A");
+    }, 8200);
+
+    // 11. Trigger Shatter
+    const tB = setTimeout(() => {
+      console.log(`[Preloader] 9200ms - State B (Shatter)`);
+      setPreloaderState("B");
+    }, 9200);
+
+    // 12. End preloader
+    const tDone = setTimeout(() => {
+      console.log(`[Preloader] 11000ms - DONE (Live State)`);
+      setPreloaderState("DONE");
+      setIsProjectsDimmed(false);
+      console.log(`[Preloader] Projects Restored`);
+      document.body.style.overflow = "auto";
+      window.scrollTo(0, 0);
+    }, 11000);
+
+    return () => {
+      clearTimeout(tLogo);
+      clearTimeout(tLogoReveal);
+      clearTimeout(tNav);
+      clearTimeout(tUnveil);
+      clearTimeout(tQuote);
+      clearTimeout(tQuoteReveal);
+      clearTimeout(tProjectsCenter);
+      clearTimeout(tProjectsSplit);
+      clearTimeout(tProjectsDim);
+      clearTimeout(tReturn);
+      clearTimeout(tB);
+      clearTimeout(tDone);
+      document.body.style.overflow = "auto";
+      document.documentElement.removeAttribute('data-preloading');
+    };
+  }, []);
+
+  // Sync preloader state with document for CSS-based hiding
+  useEffect(() => {
+    if (preloaderState !== "DONE") {
+      document.documentElement.setAttribute('data-preloading', 'true');
+    } else {
+      document.documentElement.removeAttribute('data-preloading');
+    }
+    
+    // Sync navbar wireframe state
+    if (isNavbarWireframe) {
+      document.documentElement.setAttribute('data-navbar-wireframe', 'true');
+    } else {
+      document.documentElement.setAttribute('data-navbar-wireframe', 'false');
+    }
+    // Sync logo wireframe state
+    if (isLogoWireframe) {
+      document.documentElement.setAttribute('data-logo-wireframe', 'true');
+    } else {
+      document.documentElement.setAttribute('data-logo-wireframe', 'false');
+    }
+    // Sync side projects split state based on exact trigger timing
+    if (isProjectsDimmed) {
+      document.documentElement.setAttribute('data-projects-split', 'true');
+    } else {
+      document.documentElement.setAttribute('data-projects-split', 'false');
+    }
+  }, [preloaderState, isNavbarWireframe, isLogoWireframe, isProjectsDimmed]);
+
+  const dropTransition = {
+    type: "tween" as const,
+    ease: [0.5, 0, 1, 1] as const, // cubic ease-in mapped via array tuple
+    duration: 1.8
+  };
+
+  const shatterTransition = (delaySec: number) => ({
+    x: { type: "spring" as const, stiffness: 250, damping: 20, mass: 0.8, delay: delaySec },
+    y: { type: "spring" as const, stiffness: 250, damping: 20, mass: 0.8, delay: delaySec },
+    scale: { type: "spring" as const, stiffness: 250, damping: 20, mass: 0.8, delay: delaySec },
+    opacity: { type: "tween" as const, duration: 0.8, ease: "linear" as const, delay: delaySec + 0.1 } 
+  });
+
+  // physics for the pupil (strictly interactive)
   const springConfig = { damping: 20, stiffness: 250, mass: 0.2 };
   const smoothX = useSpring(pupilX, springConfig);
   const smoothY = useSpring(pupilY, springConfig);
 
-  // Dilation physics - responds slightly slower for biological feel
   const scaleSpringConfig = { damping: 25, stiffness: 150, mass: 0.4 };
   const smoothScale = useSpring(pupilScale, scaleSpringConfig);
 
@@ -156,37 +196,28 @@ export default function Home() {
     ([scale, hover]: number[]) => scale * (1 - hover) + 0.15 * hover
   );
 
-  // Socket physics - stiffer, subtle and delayed 
-  // It represents the firmer mass of the whole eyeball shifting
   const socketSpringConfig = { damping: 25, stiffness: 180, mass: 0.6 };
   const smoothSocketX = useSpring(socketX, socketSpringConfig);
   const smoothSocketY = useSpring(socketY, socketSpringConfig);
   const smoothSocketScaleX = useSpring(socketScaleX, socketSpringConfig);
   const smoothSocketScaleY = useSpring(socketScaleY, socketSpringConfig);
 
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!eyeRef.current) return;
+  const trackerRef = React.useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    let animationFrameId: number;
+
+    const updateEye = (targetX: number, targetY: number) => {
+      if (!eyeRef.current) return;
       const { left, top, width, height } = eyeRef.current.getBoundingClientRect();
       const centerX = left + width / 2;
       const centerY = top + height / 2;
-
-      const deltaX = e.clientX - centerX;
-      const deltaY = e.clientY - centerY;
-
+      const deltaX = targetX - centerX;
+      const deltaY = targetY - centerY;
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       const angle = Math.atan2(deltaY, deltaX);
-
-      // Max allowed travel distance calculation to stay fully inside the white socket area securely
       const MAX_RADIUS = 7.0;
-
-      // Asymptotic curve mapping: the tracking never arbitrarily hits a "wall". 
-      // It smoothly approaches the max radius limits the further away the mouse gets.
       const mappedRadius = (distance / (distance + 400)) * MAX_RADIUS;
-
-      // Dilation logic: the further the mouse is, the larger the pupil gets (up to 1.35x size)
-      // When the mouse is directly over/very close to the eye, distance drops and scale approaches 1.0.
       const MAX_SCALE = 1.35;
       const mappedScale = 1.0 + (distance / (distance + 800)) * (MAX_SCALE - 1.0);
 
@@ -194,26 +225,14 @@ export default function Home() {
       pupilY.set(Math.sin(angle) * mappedRadius);
       pupilScale.set(mappedScale);
 
-      // --- Socket Movement Logic ---
-      // The socket itself moves but much less (e.g. max 3px shift)
-      const MAX_SOCKET_SHIFT = 3.0;
-      const mappedSocketShift = (distance / (distance + 400)) * MAX_SOCKET_SHIFT;
-
-      // Squish the socket slightly in the direction of movement.
-      // E.g. If looking far right, the width squeezes slightly (0.95) and height bulges (1.05)
-      // We calculate a generic "squish factor" based on distance
-      const MAX_SQUISH = 0.08; // 8% distortion max
-      const squishAmount = (distance / (distance + 600)) * MAX_SQUISH;
-
-      // Calculate how much horizontal vs vertical movement is happening
+      const MAX_SOCKET_SHIFT = 5.0;
+      const mappedSocketShift = (distance / (distance + 350)) * MAX_SOCKET_SHIFT;
+      const MAX_SQUISH = 0.15;
+      const squishAmount = (distance / (distance + 500)) * MAX_SQUISH;
       const absCos = Math.abs(Math.cos(angle));
       const absSin = Math.abs(Math.sin(angle));
-
-      // Apply the squish. If mostly moving horizontally, squeeze width and bulge height.
-      // If mostly moving vertically, squeeze height and bulge width.
-      // This creates a very organic "muscular tension" effect.
-      const scaleXAmount = 1.0 - (squishAmount * absCos) + (squishAmount * absSin * 0.5);
-      const scaleYAmount = 1.0 - (squishAmount * absSin) + (squishAmount * absCos * 0.5);
+      const scaleXAmount = 1.0 - (squishAmount * absCos) + (squishAmount * absSin * 0.4);
+      const scaleYAmount = 1.0 - (squishAmount * absSin) + (squishAmount * absCos * 0.4);
 
       socketX.set(Math.cos(angle) * mappedSocketShift);
       socketY.set(Math.sin(angle) * mappedSocketShift);
@@ -221,161 +240,307 @@ export default function Home() {
       socketScaleY.set(scaleYAmount);
     };
 
+    const handleMouseMove = (e: MouseEvent) => {
+      if (preloaderState === "DONE") {
+        updateEye(e.clientX, e.clientY);
+      }
+    };
+
+    const trackPreloader = () => {
+      if (preloaderState !== "DONE" && trackerRef.current) {
+        const { left, top, width, height } = trackerRef.current.getBoundingClientRect();
+        updateEye(left + width / 2, top + height / 2);
+        animationFrameId = requestAnimationFrame(trackPreloader);
+      }
+    };
+
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [pupilX, pupilY, pupilScale, socketX, socketY, socketScaleX, socketScaleY]);
+    
+    if (preloaderState !== "DONE") {
+      trackPreloader();
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [preloaderState, pupilX, pupilY, pupilScale, socketX, socketY, socketScaleX, socketScaleY]);
 
   return (
     <>
-      <div className="relative">
-        {/* Hero Section - Sticky reveal effect */}
-        <motion.main
-          id="hero"
-          className="sticky top-0 w-full h-[100dvh] bg-[#0004D9] overflow-hidden flex flex-col items-center z-0 pt-[147px]"
-        >
-          <ThunderRainBackground />
-
-          {/* Top Left Frame Line */}
+      <AnimatePresence>
+        {preloaderState !== "DONE" && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="absolute top-[44px] md:top-[59px] left-[40px] z-20 pointer-events-none"
+            key="preloader"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.4, ease: "easeInOut" } }}
+            className="fixed inset-0 z-60 bg-[#FFFFFF] flex flex-col items-center pt-[147px] light-bg-nav-trigger overflow-hidden"
+            style={{ backgroundColor: '#FFFFFF' }}
           >
-            <Image src="/svgs/top-left-line.svg" alt="Top Left Frame" width={72} height={180} />
-          </motion.div>
+            <div className="absolute top-[44px] md:top-[59px] left-[40px] z-20" style={{ filter: "brightness(0) invert(0.85)" }}>
+              <Image src="/svgs/top-left-line.svg" alt="" width={76} height={184} />
+            </div>
 
-          {/* Bottom Right Frame Line */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="absolute bottom-[40px] right-[40px] z-20 pointer-events-none"
-          >
-            <Image src="/svgs/right-below-line.svg" alt="Bottom Right Frame" width={122} height={77} />
-          </motion.div>
+            <div className="absolute bottom-[40px] right-[40px] z-20" style={{ filter: "brightness(0) invert(0.85)" }}>
+              <Image src="/svgs/right-below-line.svg" alt="" width={126} height={81} />
+            </div>
 
-          {/* Fixed-size Typography - Positioned and cropped according to the 'frame' reference */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.2, ease: "easeOut" }}
-            className="absolute left-[-103px] bottom-[-180px] w-[1821px] h-[981px] pointer-events-none z-0"
-          >
-            <Image
-              src="/svgs/hero-heading.svg?v=6"
-              alt="Designer Creative Headline"
-              fill
-              className="object-contain"
-              priority
-            />
+          <div className="absolute left-[-103px] bottom-[-100px] w-[1202px] h-[604px] z-0">
+            <div className="absolute inset-0" style={{ filter: "brightness(0) invert(0.85)" }}>
+              <Image
+                src="/svgs/HeroHeadlineSVG-Live.svg"
+                alt=""
+                fill
+                className="object-contain"
+                priority
+              />
 
-            {/* Dynamic wrapper for the whole white socket, driven by its own physics */}
+              <motion.svg
+                width="100%" height="100%"
+                viewBox="0 0 1821 915"
+                className="absolute inset-0"
+              >
+                {/* Group 1: Left Blocks (Drops when B is reached) */}
+                <motion.g initial={{ y: 0 }} animate={{ y: (preloaderState === "A" || preloaderState === "LOGO" || preloaderState === "NAV" || preloaderState === "QUOTE" || preloaderState === "PROJECTS_CENTER" || preloaderState === "PROJECTS_SPLIT") ? 0 : 1500 }} transition={{ ...dropTransition, delay: 0.0 }}>
+                  {/* Top Block 1 (shattered) */}
+                  <motion.path d="M610 243 L638 243 L638 265 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 30, y: preloaderState !== "B" ? 0 : -45, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M610 243 L610 286 L638 265 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : -45, y: preloaderState !== "B" ? 0 : -10, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M610 286 L638 286 L638 265 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 25, y: preloaderState !== "B" ? 0 : 50, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+
+                  {/* Droplet 1 (shattered) */}
+                  <motion.path d="M610 496.207 L638 496.207 L638 515 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 45, y: preloaderState !== "B" ? 0 : -60, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M610 496.207 L610 538.207 L638 515 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : -55, y: preloaderState !== "B" ? 0 : -20, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M610 538.207 L638 538.207 L638 515 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 35, y: preloaderState !== "B" ? 0 : 80, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                </motion.g>
+
+                {/* Group 2: Middle Blocks (Drops when B is reached) */}
+                <motion.g initial={{ y: 0 }} animate={{ y: (preloaderState === "A" || preloaderState === "LOGO" || preloaderState === "NAV" || preloaderState === "QUOTE" || preloaderState === "PROJECTS_CENTER" || preloaderState === "PROJECTS_SPLIT") ? 0 : 1500 }} transition={{ ...dropTransition, delay: 0.0 }}>
+                  {/* Top Block 2 (shattered) */}
+                  <motion.path d="M833 242 L861 242 L861 263 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 20, y: preloaderState !== "B" ? 0 : -50, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M833 242 L833 284 L861 263 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : -55, y: preloaderState !== "B" ? 0 : -5, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M833 284 L861 284 L861 263 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 35, y: preloaderState !== "B" ? 0 : 40, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+
+                  {/* Droplet 2 (shattered) */}
+                  <motion.path d="M833 498.207 L861 498.207 L861 520 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 35, y: preloaderState !== "B" ? 0 : -55, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M833 498.207 L833 541.207 L861 520 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : -70, y: preloaderState !== "B" ? 0 : 15, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M833 541.207 L861 541.207 L861 520 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 40, y: preloaderState !== "B" ? 0 : 90, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+
+                  {/* Droplet 3 (shattered) */}
+                  <motion.path d="M1115 493.707 L1143 494.707 L1143 515 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 55, y: preloaderState !== "B" ? 0 : -30, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1115 493.707 L1115 536.707 L1143 515 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : -45, y: preloaderState !== "B" ? 0 : -25, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1115 536.707 L1143 536.707 L1143 515 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 25, y: preloaderState !== "B" ? 0 : 65, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+
+                  {/* Top Block 3 (shattered) */}
+                  <motion.path d="M1115 241 L1143 241 L1143 262 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 40, y: preloaderState !== "B" ? 0 : -35, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1115 241 L1115 284 L1143 262 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : -30, y: preloaderState !== "B" ? 0 : -15, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1115 284 L1143 284 L1143 262 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 20, y: preloaderState !== "B" ? 0 : 60, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                </motion.g>
+
+                {/* Group 3: Right Blocks (Drops when B is reached) */}
+                <motion.g initial={{ y: 0 }} animate={{ y: (preloaderState === "A" || preloaderState === "LOGO" || preloaderState === "NAV" || preloaderState === "QUOTE" || preloaderState === "PROJECTS_CENTER" || preloaderState === "PROJECTS_SPLIT") ? 0 : 1500 }} transition={{ ...dropTransition, delay: 0.0 }}>
+                  {/* Top Block 4 (shattered) */}
+                  <motion.path d="M1336 242 L1364 242 L1364 265 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 25, y: preloaderState !== "B" ? 0 : -55, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1336 242 L1336 287 L1364 265 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : -50, y: preloaderState !== "B" ? 0 : -20, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1336 287 L1364 287 L1364 265 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 45, y: preloaderState !== "B" ? 0 : 35, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+
+                  {/* Droplet 4 (shattered) */}
+                  <motion.path d="M1560 494.207 L1588 494.207 L1588 515 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 40, y: preloaderState !== "B" ? 0 : -70, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1560 494.207 L1560 537.207 L1588 515 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : -65, y: preloaderState !== "B" ? 0 : 20, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1560 537.207 L1588 537.207 L1588 515 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 50, y: preloaderState !== "B" ? 0 : 85, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+
+                  {/* Top Block 5 (shattered) */}
+                  <motion.path d="M1560 242 L1588 242 L1588 263 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 35, y: preloaderState !== "B" ? 0 : -40, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1560 242 L1560 285 L1588 263 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : -40, y: preloaderState !== "B" ? 0 : 10, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                  <motion.path d="M1560 285 L1588 285 L1588 263 Z" fill="#D9D9D9" stroke="#D9D9D9" strokeWidth={0.8} strokeLinejoin="round" initial={{ x: 0, y: 0, scale: 1 }} animate={{ x: preloaderState !== "B" ? 0 : 55, y: preloaderState !== "B" ? 0 : 45, scale: preloaderState !== "B" ? 1 : 0.65, opacity: preloaderState !== "B" ? 1 : 0 }} transition={shatterTransition(0.0)} />
+                </motion.g>
+              </motion.svg>
+            </div>
+
+            {/* The Preloader Eye (Unfiltered) */}
             <motion.div
-              ref={eyeRef}
-              className="absolute pointer-events-auto cursor-pointer"
-              onMouseEnter={() => eyeHoverMotion.set(1)}
-              onMouseLeave={() => eyeHoverMotion.set(0)}
+              className="absolute pointer-events-none bg-[#D9D9D9] rounded-full"
               style={{
                 width: 39,
                 height: 39,
-                // Repositioned to the 'i' dot in new Hero Heading.3.svg (dot center: 656, 437)
-                left: 633,
-                top: 415,
+                left: 636.5,
+                top: 122,
                 x: smoothSocketX,
                 y: smoothSocketY,
                 scaleX: smoothSocketScaleX,
                 scaleY: smoothSocketScaleY,
               }}
             >
-              {/* Interactive Eye Pupil for the 'i' in 'Designer' */}
               <motion.div
-                className="absolute"
                 style={{
-                  width: 24, // The pupil is purposely smaller than 39px so it moves INSIDE the white socket
+                  width: 24,
                   height: 24,
-                  left: 7.5, // Centers the 24px pupil precisely inside the 39px area ((39-24) / 2 = 7.5)
+                  left: 7.5,
                   top: 7.5,
                   x: smoothX,
                   y: smoothY,
                   scaleX: finalPupilScaleX,
                   scaleY: finalPupilScaleY,
                 }}
+                className="absolute"
               >
-                {/* Inner wrapper handles the continuous blinking via CSS */}
-                <div
-                  className="w-full h-full bg-black rounded-full animate-blink"
-                />
+                <div className="w-full h-full bg-[#A3A3A3] rounded-full" />
               </motion.div>
             </motion.div>
-          </motion.div>
-
-          {/* Main Content Container */}
-          <div className="relative w-full max-w-screen-2xl flex flex-col items-start px-[5vw] md:px-[8vw]">
-
-            {/* Animated Side Projects Circular Carousel - Hidden as per request */}
-            {/* <AnimatedSideProjects /> */}
-
           </div>
 
-          {/* Description and Action Button - Positioned above the 'Designer' text */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut", delay: 0.5 }}
-            className="absolute z-30 flex flex-col items-end gap-2"
-            style={{ left: "19%", top: "calc(40% - 132px)", width: "648px" }}
-          >
-            {/* Text container stays fixed height so it doesn't push the button while typing */}
+            {/* Motion Tracker — Viewport-wide overlay for travel between headline and navbar */}
+            <motion.div 
+              ref={trackerRef}
+              className="fixed inset-0 z-[300] pointer-events-none"
+              animate={{
+                top: preloaderState === "LOGO" ? "35px" : preloaderState === "NAV" ? "30px" : preloaderState === "QUOTE" ? "calc(40% + 140px)" : (preloaderState === "PROJECTS_CENTER" || preloaderState === "PROJECTS_SPLIT") ? "calc(50% - 207px)" : "calc(100% - 350px)",
+                left: preloaderState === "LOGO" ? "180px" : preloaderState === "NAV" ? "50%" : preloaderState === "QUOTE" ? "calc(19% + 490px)" : (preloaderState === "PROJECTS_CENTER" || preloaderState === "PROJECTS_SPLIT") ? "calc(100% - 371.5px)" : "50%",
+                x: preloaderState === "LOGO" ? "0%" : preloaderState === "NAV" ? "-50%" : preloaderState === "QUOTE" ? "-50%" : (preloaderState === "PROJECTS_CENTER" || preloaderState === "PROJECTS_SPLIT") ? "-50%" : "-50%",
+                y: preloaderState === "LOGO" ? "-50%" : preloaderState === "NAV" ? "0%" : preloaderState === "QUOTE" ? "-50%" : (preloaderState === "PROJECTS_CENTER" || preloaderState === "PROJECTS_SPLIT") ? "0%" : "-50%",
+                width: preloaderState === "LOGO" ? "140px" : preloaderState === "NAV" ? "400px" : preloaderState === "QUOTE" ? "220px" : (preloaderState === "PROJECTS_CENTER" || preloaderState === "PROJECTS_SPLIT") ? "540px" : "1200px",
+                height: preloaderState === "LOGO" ? "50px" : preloaderState === "NAV" ? "80px" : preloaderState === "QUOTE" ? "80px" : (preloaderState === "PROJECTS_CENTER" || preloaderState === "PROJECTS_SPLIT") ? "418px" : "400px",
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 100,
+                damping: 20,
+              }}
+            >
+              <MotionTracker
+                preloaderState={preloaderState}
+                activeTarget={3}
+                x={0}
+                y={0}
+                width="100%"
+                height="100%"
+                color="#C0C0C0"
+              />
+            </motion.div>
+
+            <div
+              className="absolute z-30 flex flex-col items-end gap-2"
+              style={{ left: "19%", top: "calc(40% - 132px)", width: "648px" }}
+            >
+              <div className="w-full h-[220px]">
+                <TypewriterText
+                  title="conceptual design"
+                  text="A bold fusion of wireframe raw concepts and high-fidelity motion interactive design."
+                  isActive={true}
+                  isStatic={true}
+                  variant="grey"
+                  className="!text-[#D9D9D9]"
+                />
+              </div>
+              <BracketButton isStatic={true} color="black" isWireframe={isQuoteWireframe} className="preloader-active">
+                {isQuoteWireframe ? "BUTTOn" : "Get a quote"}
+              </BracketButton>
+            </div>
+
+            <BlackHoleSideProjects
+              onActiveChange={() => { }}
+              onHoverChange={() => { }}
+              isStatic={true}
+            />
+
+            <div className="absolute bottom-8 md:bottom-6 w-full max-w-[1400px] h-[32px] px-3 translate-x-[60px]" style={{ filter: "brightness(0) invert(0.85)" }}>
+              <div className="relative w-full h-full">
+                <Image src="/svgs/hero-sub-heading.svg" alt="" fill className="object-contain" />
+              </div>
+            </div>
+
+            {/* Placeholder for future transformations hook */}
+            {preloaderState === "B" && (
+              <div data-hook="future-transformations"></div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div
+        data-hero
+        className="relative w-full min-h-screen bg-white light-bg-nav-trigger"
+        style={{ visibility: preloaderState === "DONE" ? "visible" : "hidden" }}
+      >
+        <main id="hero" className="relative w-full h-screen flex flex-col items-center pt-[147px] z-[200] overflow-hidden">
+          <div className="absolute top-[44px] md:top-[59px] left-[40px] z-20 pointer-events-none" style={{ filter: "brightness(0)" }}>
+            <Image src="/svgs/top-left-line.svg" alt="" width={76} height={184} />
+          </div>
+
+          <div className="absolute bottom-[40px] right-[40px] z-20 pointer-events-none" style={{ filter: "brightness(0)" }}>
+            <Image src="/svgs/right-below-line.svg" alt="" width={126} height={81} />
+          </div>
+
+          <div className="absolute left-[-103px] bottom-[-100px] w-[1202px] h-[604px] pointer-events-none z-0">
+            <Image
+              src="/svgs/HeroHeadlineSVG-Live.svg"
+              alt="Designer Creative Headline"
+              fill
+              className="object-contain"
+              priority
+            />
+
+            <motion.div
+              ref={eyeRef}
+              className="absolute pointer-events-auto cursor-pointer bg-[#F0F0F0] rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+              onMouseEnter={() => eyeHoverMotion.set(1)}
+              onMouseLeave={() => eyeHoverMotion.set(0)}
+              style={{
+                width: 39,
+                height: 39,
+                left: 636.5,
+                top: 122,
+                x: smoothSocketX,
+                y: smoothSocketY,
+                scaleX: smoothSocketScaleX,
+                scaleY: smoothSocketScaleY,
+              }}
+            >
+              <motion.div
+                style={{
+                  width: 24,
+                  height: 24,
+                  left: 7.5,
+                  top: 7.5,
+                  x: smoothX,
+                  y: smoothY,
+                  scaleX: finalPupilScaleX,
+                  scaleY: finalPupilScaleY,
+                }}
+                className="absolute"
+              >
+                <div className="w-full h-full bg-black rounded-full animate-blink" />
+              </motion.div>
+            </motion.div>
+          </div>
+
+          <div className="absolute z-[210] flex flex-col items-end gap-2" style={{ left: "19%", top: "calc(40% - 132px)", width: "648px" }}>
             <div className="w-full h-[220px]">
               <TypewriterText
                 title={activeProjectIdx !== -1 ? PROJECTS[activeProjectIdx].alt : ""}
                 text={activeProjectIdx !== -1 ? PROJECTS[activeProjectIdx].desc : ""}
                 isActive={activeProjectIdx !== -1}
                 isPaused={isProjectHovered}
+                variant="light"
               />
             </div>
-
-            <BracketButton href="/contact" color="white">
+            <BracketButton href="/contact" color="black">
               Get a quote
             </BracketButton>
-          </motion.div>
+          </div>
 
-          {/* Black Hole Side Projects Component */}
-          <BlackHoleSideProjects
-            onActiveChange={setActiveProjectIdx}
-            onHoverChange={setIsProjectHovered}
-          />
-
-          {/* Bottom Secondary Typography / Navigation Links */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1.5 }}
-            className="absolute bottom-8 md:bottom-6 w-full max-w-[1400px] h-[32px] px-3 translate-x-[60px]"
-          >
-            <div className="relative w-full h-full">
-              <Image
-                src="/svgs/hero-sub-heading.svg"
-                alt="Purpose Meaning Visual Hierarchy Clarity Execution"
-                fill
-                className="object-contain"
+            {preloaderState === "DONE" && (
+              <BlackHoleSideProjects
+                onActiveChange={setActiveProjectIdx}
+                onHoverChange={setIsProjectHovered}
               />
+            )}
+
+          <div className="absolute bottom-8 md:bottom-6 w-full max-w-[1400px] h-[32px] px-3 translate-x-[60px] pointer-events-none" style={{ filter: "brightness(0)" }}>
+            <div className="relative w-full h-full">
+              <Image src="/svgs/hero-sub-heading.svg" alt="" fill className="object-contain" />
             </div>
-          </motion.div>
-        </motion.main>
-
-        {/* Removed spacer to allow for natural scrolling of the hero */}
-
-        {/* Scrollable Content Sections - Background removed to allow sticky hero reveal through masks */}
-        <div className="relative z-10 light-bg-nav-trigger">
-          <SecondSection />
-          <WorksSection />
-          <ServicesSection />
-          {/* <CTASection /> */}
-          <ContactSection />
-          <Footer />
-        </div>
+          </div>
+        </main>
       </div>
     </>
   );

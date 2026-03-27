@@ -1,3 +1,8 @@
-<svg width="72" height="180" viewBox="0 0 72 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M72 1H1V179.5" stroke="#B1C7F9" stroke-width="2"/>
+<svg width="76" height="184" viewBox="0 0 76 184" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sharp Gray Backbone (4px L-shape) -->
+  <path d="M76 0H0V184H4V4H76V0Z" fill="#ffffff1a"/>
+  <!-- Top Right Lime Overlay (18px Outer, 8px Slant \ ) -->
+  <path d="M58 0L66 4H76V0H58Z" fill="#ccff00"/>
+  <!-- Bottom Left Lime Overlay (18px Outer, 8px Slant \ ) -->
+  <path d="M0 166L4 174V184H0V166Z" fill="#ccff00"/>
 </svg>

@@ -26,15 +26,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Stick+No+Bills:wght@400;600&display=swap" rel="stylesheet" />
         <style>{`:root { --font-post-no-bills: 'Stick No Bills', sans-serif; }`}</style>
+        {/* Blocking script to prevent hydration flicker on Home page preloader */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function() {
+            try {
+              if (window.location.pathname === '/' || window.location.pathname === '') {
+                document.documentElement.setAttribute('data-preloading', 'true');
+                document.documentElement.setAttribute('data-navbar-wireframe', 'true');
+                document.documentElement.setAttribute('data-logo-wireframe', 'true');
+              }
+            } catch (e) {}
+          })();
+        ` }} />
       </head>
       <body
-        className={`antialiased font-sans bg-[#0004D9] text-white ${dmSans.className} ${inter.variable}`}
+        className={`antialiased font-sans bg-black text-white ${dmSans.className} ${inter.variable}`}
       >
         <ScrollToTop />
         <SmoothScroll />
@@ -42,6 +54,7 @@ export default function RootLayout({
         <div className="fixed inset-0 z-50 pointer-events-none bg-[#76CA00] opacity-[0.16] mix-blend-hue" />
 
         <Navbar />
+
         <PageTransition>
           {children}
         </PageTransition>
