@@ -15,6 +15,9 @@ const BlackHoleSideProjects = dynamic(
   { ssr: false }
 );
 
+// Module-level variable survives client-side navigations but resets on hard reload (F5)
+let hasFinishedIntroGlobal = false;
+
 export default function Home() {
   const [activeProjectIdx, setActiveProjectIdx] = useState(-1);
   const [isProjectHovered, setIsProjectHovered] = useState(false);
@@ -28,14 +31,30 @@ export default function Home() {
   const eyeRef = React.useRef<HTMLDivElement>(null);
 
   // --- Preloader Logic ---
-  const [preloaderState, setPreloaderState] = useState<"A" | "LOGO" | "NAV" | "QUOTE" | "PROJECTS_CENTER" | "PROJECTS_SPLIT" | "B" | "DONE">("A");
+  const [preloaderState, setPreloaderState] = useState<"A" | "LOGO" | "NAV" | "QUOTE" | "PROJECTS_CENTER" | "PROJECTS_SPLIT" | "B" | "DONE">(hasFinishedIntroGlobal ? "DONE" : "A");
   const [activeTarget, setActiveTarget] = useState(3);
-  const [isNavbarWireframe, setIsNavbarWireframe] = useState(true);
-  const [isLogoWireframe, setIsLogoWireframe] = useState(true);
-  const [isQuoteWireframe, setIsQuoteWireframe] = useState(true);
+  const [isNavbarWireframe, setIsNavbarWireframe] = useState(!hasFinishedIntroGlobal);
+  const [isLogoWireframe, setIsLogoWireframe] = useState(!hasFinishedIntroGlobal);
+  const [isQuoteWireframe, setIsQuoteWireframe] = useState(!hasFinishedIntroGlobal);
   const [isProjectsDimmed, setIsProjectsDimmed] = useState(false);
 
   useEffect(() => {
+    const isNavigatingBack = typeof window !== "undefined" && sessionStorage.getItem("navigating_to_home") === "true";
+    if (isNavigatingBack) {
+      sessionStorage.removeItem("navigating_to_home");
+      hasFinishedIntroGlobal = true;
+    }
+
+    if (hasFinishedIntroGlobal) {
+      document.body.style.overflow = "auto";
+      setPreloaderState("DONE");
+      setIsNavbarWireframe(false);
+      setIsLogoWireframe(false);
+      setIsQuoteWireframe(false);
+      setIsProjectsDimmed(false);
+      return;
+    }
+
     // Lock scrolling on mount
     document.body.style.overflow = "hidden";
 
@@ -112,6 +131,7 @@ export default function Home() {
       console.log(`[Preloader] 11000ms - DONE (Live State)`);
       setPreloaderState("DONE");
       setIsProjectsDimmed(false);
+      hasFinishedIntroGlobal = true;
       console.log(`[Preloader] Projects Restored`);
       document.body.style.overflow = "auto";
       window.scrollTo(0, 0);

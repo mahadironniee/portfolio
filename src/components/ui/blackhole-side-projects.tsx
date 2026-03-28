@@ -240,7 +240,7 @@ const ProjectCard = ({
                 outline: "none"
             }}
         >
-            <div className={`w-full h-full overflow-hidden relative border-none outline-none ${isStatic ? "bg-[#D9D9D9]" : "bg-black shadow-xl shadow-black/40"}`}>
+            <div className={`w-full h-full overflow-hidden relative border-none outline-none ${isStatic ? "bg-[#D9D9D9]" : "bg-black shadow-lg shadow-black/25"}`}>
                 {!isStatic && (
                     <motion.div
                         className="absolute inset-0 z-20 pointer-events-none overflow-hidden"
@@ -573,10 +573,27 @@ export default function BlackHoleSideProjects({
             >
                 <div className="absolute inset-0 overflow-hidden z-10">
                     {/* 3 frozen cards at tMotion=2.0 positions: i=3 top, i=2 center, i=1 bottom */}
-                    <StaticProjectCard key="top" x={0} y={POS_1} scale={0.7} opacity={isSplitTargeted ? 0.65 : 1} showNoSignal={true} isHighlighted={isSplitTargeted} />
+                    <StaticProjectCard key="top" x={0} y={POS_1} scale={0.7} opacity={isSplitTargeted ? 0.65 : 1} showNoSignal={true} showGrain={false} isHighlighted={isSplitTargeted} />
                     <StaticProjectCard key="center" x={0} y={POS_2} scale={1.35} />
-                    <StaticProjectCard key="bottom" x={0} y={POS_3} scale={0.7} opacity={isSplitTargeted ? 0.65 : 1} showGrain={true} isHighlighted={isSplitTargeted} />
+                    <StaticProjectCard key="bottom" x={0} y={POS_3} scale={0.7} opacity={isSplitTargeted ? 0.65 : 1} showNoSignal={false} showGrain={true} isHighlighted={isSplitTargeted} />
                 </div>
+                {isSplitTargeted && (
+                    <div
+                        className="absolute z-[60] pointer-events-none"
+                        style={{
+                            left: "50%",
+                            top: "50%",
+                            width: 540,
+                            height: 418.5,
+                            transform: "translate(-50%, -50%)"
+                        }}
+                    >
+                        <div className="absolute z-[70] pointer-events-none bg-[#D9D9D9]" style={{ top: 0, left: 0, width: 80, height: 80, clipPath: "polygon(0 0, 100% 0, calc(100% - 8px) 4px, 4px 4px, 4px calc(100% - 8px), 0 100%)" }} />
+                        <div className="absolute z-[70] pointer-events-none bg-[#D9D9D9]" style={{ top: 0, right: 0, width: 40, height: 40, clipPath: "polygon(0 0, 100% 0, 100% 100%, calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) 4px, 8px 4px)" }} />
+                        <div className="absolute z-[70] pointer-events-none bg-[#D9D9D9]" style={{ bottom: 0, left: 0, width: 40, height: 40, clipPath: "polygon(0 0, 4px 8px, 4px calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), 100% 100%, 0 100%)" }} />
+                        <div className="absolute z-[70] pointer-events-none bg-[#D9D9D9]" style={{ bottom: 0, right: 0, width: 80, height: 80, clipPath: "polygon(100% 0, calc(100% - 4px) 8px, calc(100% - 4px) calc(100% - 4px), 8px calc(100% - 4px), 0 100%, 100% 100%)" }} />
+                    </div>
+                )}
             </div>
         );
     }
@@ -694,7 +711,7 @@ export default function BlackHoleSideProjects({
                     className="absolute inset-0 pointer-events-none z-[60]"
                     style={{
                         border: "none",
-                        boxShadow: isStatic ? "none" : "0 0 60px rgba(255,255,255,0.1), inset 0 0 45px rgba(255,255,255,0.05)",
+                        boxShadow: isStatic ? "none" : "0 0 40px rgba(255,255,255,0.08), inset 0 0 30px rgba(255,255,255,0.04)",
                     }}
                 >
                     {isStatic && (
@@ -709,7 +726,7 @@ export default function BlackHoleSideProjects({
                                 repeat: Infinity,
                                 ease: "linear",
                             }}
-                            className="absolute left-0 right-0 h-[1px] bg-[#D9D9D9] shadow-[0_0_12px_rgba(217,217,217,0.4)] z-50"
+                            className="absolute left-0 right-0 h-[1px] bg-[#D9D9D9] shadow-[0_0_8px_rgba(217,217,217,0.25)] z-50"
                         />
                     )}
                 </div>

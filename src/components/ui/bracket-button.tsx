@@ -33,8 +33,9 @@ export default function BracketButton({
     const [isHovered, setIsHovered] = useState(false);
     const baseColor = isStatic ? "#D9D9D9" : (isWireframe ? "#D9D9D9" : (color === "white" ? "white" : "#000000"));
     const textColor = isStatic ? "#D9D9D9" : (isWireframe ? "#FFFFFF" : baseColor);
-    const hoverColor = color === "white" ? "#000000" : "#FFFFFF";
+    const hoverColor = "#FFFFFF"; // Always white on hover
     const hoverBg = isStatic ? "transparent" : "#0066FF";
+    const bracketColor = isHovered ? "#000000" : baseColor;
 
     const offsetA = useMotionValue(-109);
     const offsetB = useMotionValue(-305);
@@ -62,9 +63,12 @@ export default function BracketButton({
                 controlsB.stop();
             };
         } else {
-            // Hovered: calculate nearest corner and spring to it
+            // Hovered: snap to any of the 4 corners (nearest of [0, -149, -196, -345])
             const getNearestTarget = (current: number) => {
-                const baseTargets = [-109, -186, -305, -382];
+                // Correct targets for 149x47 rect (approx) to put a corner in the middle of a 50px segment:
+                // segment=50 implies half=25.
+                // Top-Left: 0+25=25, Top-Right: -149+25=-124, Bottom-Right: -196+25=-171, Bottom-Left: -345+25=-320
+                const baseTargets = [25, -124, -171, -320];
                 let bestTarget = current;
                 let minDiff = Infinity;
 
@@ -84,13 +88,13 @@ export default function BracketButton({
 
             const controlsA = animate(offsetA, getNearestTarget(offsetA.get()), {
                 type: "spring",
-                stiffness: 400,
-                damping: 40,
+                stiffness: 450,
+                damping: 30,
             });
             const controlsB = animate(offsetB, getNearestTarget(offsetB.get()), {
                 type: "spring",
-                stiffness: 400,
-                damping: 40,
+                stiffness: 450,
+                damping: 30,
             });
             return () => {
                 controlsA.stop();
@@ -112,7 +116,7 @@ export default function BracketButton({
                 animate={{
                     backgroundColor: isHovered ? hoverBg : (isWireframe ? "#D9D9D9" : "rgba(0,0,0,0)"),
                 }}
-                transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }} // smooth ease-out (similar to easeOutCirc)
+                transition={{ duration: 0.3, ease: "easeOut" }}
             />
 
             {/* SVG bracket border */}
@@ -122,10 +126,11 @@ export default function BracketButton({
                 viewBox="0 0 151 49"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="absolute inset-0 w-full h-full z-10"
+                className="absolute inset-0 w-full h-full z-10 overflow-visible"
                 preserveAspectRatio="none"
+                style={{ transformOrigin: "center" }}
             >
-                {/* ── Full rectangle mild "track" ── */}
+                {/* ── Full rectangle mild "track" (only when NOT hovered) ── */}
                 <motion.rect
                     x="1" y="1" width="149" height="47"
                     initial={false}
@@ -136,27 +141,29 @@ export default function BracketButton({
                     transition={{ duration: 0.25 }}
                 />
 
-                {/* ── Dynamic Corner Brackets / Train Segments ── */}
-                <motion.rect
-                    x="1" y="1" width="149" height="47"
-                    strokeWidth="2"
-                    strokeLinecap="square"
-                    strokeDasharray="50 342"
-                    style={{ strokeDashoffset: offsetA }}
-                    initial={false}
-                    animate={{ stroke: baseColor }}
-                    transition={{ duration: 0.3 }}
-                />
-                <motion.rect
-                    x="1" y="1" width="149" height="47"
-                    strokeWidth="2"
-                    strokeLinecap="square"
-                    strokeDasharray="50 342"
-                    style={{ strokeDashoffset: offsetB }}
-                    initial={false}
-                    animate={{ stroke: baseColor }}
-                    transition={{ duration: 0.3 }}
-                />
+                {/* ── Dynamic Corner Brackets ── */}
+                <motion.g animate={{ scale: isHovered ? 1.02 : 1 }} style={{ transformOrigin: "center center" }}>
+                    <motion.rect
+                        x="1" y="1" width="149" height="47"
+                        strokeWidth={isHovered || !isWireframe ? "4" : "2"}
+                        strokeLinecap="square"
+                        strokeDasharray="50 342"
+                        style={{ strokeDashoffset: offsetA }}
+                        initial={false}
+                        animate={{ stroke: bracketColor }}
+                        transition={{ duration: 0.2 }}
+                    />
+                    <motion.rect
+                        x="1" y="1" width="149" height="47"
+                        strokeWidth={isHovered || !isWireframe ? "4" : "2"}
+                        strokeLinecap="square"
+                        strokeDasharray="50 342"
+                        style={{ strokeDashoffset: offsetB }}
+                        initial={false}
+                        animate={{ stroke: bracketColor }}
+                        transition={{ duration: 0.2 }}
+                    />
+                </motion.g>
             </svg>
 
             {/* Text Content */}

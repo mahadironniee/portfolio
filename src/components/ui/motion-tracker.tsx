@@ -8,7 +8,7 @@ interface MotionTrackerProps {
   y: number | string;
   width: number | string;
   height: number | string;
-  preloaderState: "A" | "LOGO" | "NAV" | "QUOTE" | "PROJECTS_CENTER" | "PROJECTS_SPLIT" | "B" | "DONE";
+  preloaderState: "A" | "LOGO" | "NAV" | "QUOTE" | "QUOTE_SPLIT" | "PROJECTS_CENTER" | "PROJECTS_SPLIT" | "B" | "DONE";
   activeTarget?: number;
   className?: string;
   color?: string;
@@ -33,7 +33,7 @@ export default function MotionTracker({
         setPhase("tracking");
       }, 150);
       return () => clearTimeout(t);
-    } else if (preloaderState === "PROJECTS_SPLIT") {
+    } else if (preloaderState === "PROJECTS_SPLIT" || preloaderState === "QUOTE_SPLIT") {
       setPhase("split");
     } else if (preloaderState === "A" || preloaderState === "LOGO" || preloaderState === "NAV" || preloaderState === "QUOTE" || preloaderState === "PROJECTS_CENTER") {
       setPhase("scanning");
@@ -49,6 +49,7 @@ export default function MotionTracker({
     { x: "55%", y: "20%" }, // Block 2 (Middle)
     { x: "80%", y: "24%" }, // Block 3 (Right)
     { x: "50%", y: "50%" }, // Center (idle)
+    { x: "50%", y: "50%" }, // Quote Midpoint (centered in current area)
   ];
   
   const currentTarget = targetCoordinates[activeTarget] || targetCoordinates[3];
@@ -107,10 +108,12 @@ export default function MotionTracker({
           }}
           animate={{
             left: currentTarget.x,
-            top: phase === "split" ? `calc(${currentTarget.y} - 316.2px)` : currentTarget.y,
-            scale: phase === "scanning" ? [0.85, 1.15, 0.85] : phase === "split" ? 1 : [1.4, 1],
-            opacity: phase === "scanning" ? 0.5 : 0.9,
-            rotate: phase === "scanning" ? 90 : 0
+            top: phase === "split" 
+              ? (preloaderState === "QUOTE_SPLIT" ? `calc(${currentTarget.y} - 90px)` : `calc(${currentTarget.y} - 316.2px)`)
+              : currentTarget.y,
+            scale: phase === "split" ? 1 : [1.4, 1],
+            opacity: phase === "split" ? 0.9 : 0,
+            rotate: 0
           }}
           transition={{ 
             left: { type: "spring", stiffness: 120, damping: 18 },
@@ -132,10 +135,37 @@ export default function MotionTracker({
           }}
           animate={{
             left: currentTarget.x,
-            top: phase === "split" ? `calc(${currentTarget.y} + 316.2px)` : currentTarget.y,
+            top: phase === "split" 
+              ? (preloaderState === "QUOTE_SPLIT" ? `calc(${currentTarget.y} + 90px)` : `calc(${currentTarget.y} + 316.2px)`)
+              : currentTarget.y,
             scale: phase === "split" ? 1 : [1.4, 1],
             opacity: phase === "split" ? 0.9 : 0,
             rotate: 0
+          }}
+          transition={{ 
+            left: { type: "spring", stiffness: 120, damping: 18 },
+            top: { type: "spring", stiffness: 120, damping: 18 },
+            scale: { duration: 0.2 },
+            opacity: { duration: 0.2 }
+          }}
+        >
+          <div style={{ width: 4, height: 4, backgroundColor: color, borderRadius: "50%" }} />
+        </motion.div>
+
+        {/* Central Targeting Reticle (Persistent inside the middle card when split) */}
+        <motion.div
+          className="absolute border rounded-full flex items-center justify-center"
+          style={{ 
+            width: 32, height: 32, 
+            borderColor: color, borderWidth: 1,
+            x: "-50%", y: "-50%"
+          }}
+          animate={{
+            left: currentTarget.x,
+            top: currentTarget.y,
+            scale: phase === "scanning" ? [0.85, 1.15, 0.85] : phase === "split" ? 1 : [1.4, 1],
+            opacity: phase === "scanning" ? 0.5 : (preloaderState === "PROJECTS_SPLIT" ? 0.9 : 0),
+            rotate: phase === "scanning" ? 90 : 0
           }}
           transition={{ 
             left: { type: "spring", stiffness: 120, damping: 18 },

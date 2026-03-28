@@ -6,7 +6,6 @@ import "./globals.css";
 
 import SmoothScroll from "@/components/ui/smooth-scroll";
 import ScrollToTop from "@/components/scroll-to-top";
-import PageTransition from "@/components/layout/page-transition";
 import Navbar from "@/components/layout/navbar";
 
 const dmSans = DM_Sans({ subsets: ["latin"] });
@@ -33,10 +32,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Stick+No+Bills:wght@400;600&display=swap" rel="stylesheet" />
         <style>{`:root { --font-post-no-bills: 'Stick No Bills', sans-serif; }`}</style>
         {/* Blocking script to prevent hydration flicker on Home page preloader */}
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script dangerouslySetInnerHTML={{
+          __html: `
           (function() {
             try {
-              if (window.location.pathname === '/' || window.location.pathname === '') {
+              // Only apply wireframe state on hard load, not client-side navigation
+              // window.__PRELOADER_DONE__ is set by page.tsx after first intro completes
+              if ((window.location.pathname === '/' || window.location.pathname === '') && !window.__PRELOADER_DONE__) {
                 document.documentElement.setAttribute('data-preloading', 'true');
                 document.documentElement.setAttribute('data-navbar-wireframe', 'true');
                 document.documentElement.setAttribute('data-logo-wireframe', 'true');
@@ -55,9 +57,7 @@ export default function RootLayout({
 
         <Navbar />
 
-        <PageTransition>
-          {children}
-        </PageTransition>
+        {children}
       </body>
     </html>
   );

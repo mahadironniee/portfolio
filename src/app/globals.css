@@ -21,7 +21,7 @@ body {
 
 @theme {
   --color-brand-blue: #000000;
-  --color-white: #F5F5FA;
+  --color-white: #FFFFFF;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-script: "Smooch", cursive;
 }
