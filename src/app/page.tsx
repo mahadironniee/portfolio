@@ -4,6 +4,10 @@ import Image from "next/image";
 import { useMotionValue, useSpring, useTransform, motion, MotionValue, AnimatePresence } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import TypewriterText from "@/components/ui/typewriter-text";
+import SmoothScroll from "@/components/ui/smooth-scroll";
+import SecondSection from "@/components/sections/second-section";
+import ProjectsSection from "@/components/sections/projects-section";
+import PlaygroundSection from "@/components/sections/playground-section";
 import { PROJECTS } from "@/components/ui/blackhole-side-projects";
 import dynamic from "next/dynamic";
 import BracketButton from "@/components/ui/bracket-button";
@@ -297,6 +301,18 @@ export default function Home() {
             className="fixed inset-0 z-60 bg-[#FFFFFF] flex flex-col items-center pt-[147px] light-bg-nav-trigger overflow-hidden"
             style={{ backgroundColor: '#FFFFFF' }}
           >
+            {/* Background Grid - consistent with playground */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.05] z-0">
+              <div className="absolute inset-0" style={{ 
+                backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', 
+                backgroundSize: '40px 40px' 
+              }} />
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-black top-[15%]" />
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-black top-[45%]" />
+              <div className="absolute top-0 left-[15%] w-[1px] h-full bg-black" />
+              <div className="absolute top-0 left-[85%] w-[1px] h-full bg-black" />
+            </div>
+
             <div className="absolute top-[44px] md:top-[59px] left-[40px] z-20" style={{ filter: "brightness(0) invert(0.85)" }}>
               <Image src="/svgs/top-left-line.svg" alt="" width={76} height={184} />
             </div>
@@ -478,10 +494,21 @@ export default function Home() {
 
       <div
         data-hero
-        className="relative w-full min-h-screen bg-white light-bg-nav-trigger"
+        className="fixed inset-0 z-0 w-full h-screen bg-white light-bg-nav-trigger"
         style={{ visibility: preloaderState === "DONE" ? "visible" : "hidden" }}
       >
         <main id="hero" className="relative w-full h-screen flex flex-col items-center pt-[147px] z-[200] overflow-hidden">
+          {/* Background Grid - consistent with playground */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.05] z-0">
+            <div className="absolute inset-0" style={{ 
+              backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', 
+              backgroundSize: '40px 40px' 
+            }} />
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-black top-[15%]" />
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-black top-[45%]" />
+            <div className="absolute top-0 left-[15%] w-[1px] h-full bg-black" />
+            <div className="absolute top-0 left-[85%] w-[1px] h-full bg-black" />
+          </div>
           <div className="absolute top-[44px] md:top-[59px] left-[40px] z-20 pointer-events-none" style={{ filter: "brightness(0)" }}>
             <Image src="/svgs/top-left-line.svg" alt="" width={76} height={184} />
           </div>
@@ -561,6 +588,52 @@ export default function Home() {
             </div>
           </div>
         </main>
+      </div>
+
+      <div className="relative z-10 w-full mt-[100vh]">
+        <SecondSection />
+        
+        <ProjectsSection />
+        
+        <PlaygroundSection />
+
+        {/* ═══════ CTA — TRANSMIT ═══════ */}
+        <section className="bg-[#0066FF] text-white px-6 md:px-12 py-32 selection:bg-black selection:text-white overflow-hidden relative">
+          <div className="absolute inset-0 pointer-events-none opacity-10">
+            <div className="absolute top-0 left-1/4 w-[1px] h-full bg-white" />
+            <div className="absolute top-0 left-3/4 w-[1px] h-full bg-white" />
+            <div className="absolute top-1/3 left-0 w-full h-[1px] bg-white" />
+            <div className="absolute top-2/3 left-0 w-full h-[1px] bg-white" />
+          </div>
+          <div className="max-w-[1400px] mx-auto relative z-10">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-10 h-[2px] bg-white/40" />
+              <span className="text-[11px] font-bold tracking-[0.5em] uppercase text-white/40">CTA — TRANSMIT</span>
+            </div>
+            <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-12">
+              <div>
+                <h2 className="text-[clamp(48px,9vw,140px)] font-[900] leading-none tracking-[-0.04em] uppercase" style={{ fontFamily: "var(--font-post-no-bills)" }}>
+                  HAVE AN<br />IDEA?
+                </h2>
+                <p className="mt-6 text-[16px] md:text-[20px] text-white/60 max-w-md leading-relaxed">
+                  Open a channel. Let&apos;s build something worth archiving.
+                </p>
+              </div>
+              <a href="/contact" className="group flex items-center gap-4 px-10 py-6 bg-black text-white hover:bg-white hover:text-black transition-all duration-500 shrink-0">
+                <span className="text-[13px] font-bold uppercase tracking-[0.4em]">Transmit a Message</span>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300"><path d="M3 15L15 3M15 3H3M15 3V15" stroke="currentColor" strokeWidth="1.5"/></svg>
+              </a>
+            </div>
+            <div className="mt-24 pt-8 border-t border-white/10 flex flex-wrap justify-between gap-8 text-[10px] font-mono text-white/30 uppercase tracking-[0.3em]">
+              <div className="flex gap-8">
+                <span>CHANNEL: OPEN</span>
+                <span>ENC: AES-256</span>
+                <span>RESPONSE: WITHIN 24H</span>
+              </div>
+              <span>LAT: 23.8°N · 90.4°E</span>
+            </div>
+          </div>
+        </section>
       </div>
     </>
   );

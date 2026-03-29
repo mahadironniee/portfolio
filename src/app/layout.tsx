@@ -7,6 +7,7 @@ import "./globals.css";
 import SmoothScroll from "@/components/ui/smooth-scroll";
 import ScrollToTop from "@/components/scroll-to-top";
 import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 
 const dmSans = DM_Sans({ subsets: ["latin"] });
 const inter = Inter({
@@ -58,6 +59,7 @@ export default function RootLayout({
         <Navbar />
 
         {children}
+        <Footer />
       </body>
     </html>
   );

@@ -13,6 +13,7 @@ function Particle({ delay }: ParticleProps) {
   const distance = useMemo(() => 80 + Math.random() * 120, []);
   const size = useMemo(() => 1.5 + Math.random() * 2, []);
   const isGrey = useMemo(() => Math.random() > 0.6, []);
+  const duration = useMemo(() => 0.6 + Math.random() * 0.5, []);
   
   // Calculate start position relative to center
   const startX = Math.cos(angle) * distance;
@@ -37,7 +38,7 @@ function Particle({ delay }: ParticleProps) {
         scale: [0.3, 1.2, 0.1],
       }}
       transition={{
-        duration: 0.6 + Math.random() * 0.5,
+        duration,
         repeat: Infinity,
         delay,
         ease: "easeIn",
