@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import BracketButton from "@/components/ui/bracket-button";
 import { PROJECTS } from "@/components/ui/blackhole-side-projects";
 import { ArrowUpRight } from "lucide-react";
 
@@ -29,9 +30,8 @@ export default function ProjectsSection() {
         <div className="absolute top-2/4 left-0 w-full h-[1px] bg-black" />
         <div className="absolute top-3/4 left-0 w-full h-[1px] bg-black" />
       </div>
-
+      {/* Header */}
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
-        {/* Header */}
         <div className="mb-24">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-12 h-[2px] bg-[#0066FF]" />
@@ -46,30 +46,34 @@ export default function ProjectsSection() {
             CASE STUDIES
           </h2>
         </div>
+      </div>
 
-        {/* Project List — Row based same as projects page */}
-        <div className="flex flex-col border-t border-black/5">
-          {displayProjects.map((project, idx) => (
-            <ProjectRow
-              key={project.alt}
-              project={project}
-              isHovered={hoveredIdx === idx}
-              onMouseEnter={() => setHoveredIdx(idx)}
-              onMouseLeave={() => setHoveredIdx(null)}
-              isAnyHovered={hoveredIdx !== null}
-            />
-          ))}
-        </div>
+      {/* Project List — Now outside max-width to allow edge-to-edge fill */}
+      <div className="flex flex-col border-t border-black/5 relative z-10">
+        {displayProjects.map((project, idx) => (
+          <ProjectRow
+            key={project.alt}
+            project={project}
+            isHovered={hoveredIdx === idx}
+            onMouseEnter={() => setHoveredIdx(idx)}
+            onMouseLeave={() => setHoveredIdx(null)}
+            isAnyHovered={hoveredIdx !== null}
+          />
+        ))}
+      </div>
 
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
         {/* Link to all projects */}
-        <div className="mt-20 flex justify-center">
-          <Link 
-            href="/projects"
-            className="group relative px-12 py-6 bg-black text-white hover:bg-[#0066FF] transition-all duration-500 overflow-hidden"
+        <div className="mt-20 flex justify-end">
+          <BracketButton 
+            href="/projects" 
+            color="white" 
+            initialBgColor="#000000" 
+            borderColor="#0066FF"
+            hoverBorderColor="#000000"
           >
-            <span className="relative z-10 text-[12px] font-bold uppercase tracking-[0.4em]">View Case Studies</span>
-            <div className="absolute inset-0 bg-white transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 opacity-10" />
-          </Link>
+            View Case Studies
+          </BracketButton>
         </div>
 
         {/* Technical Stats Footer */}
@@ -101,7 +105,7 @@ function ProjectRow({
   return (
     <Link
       href={project.href}
-      className={`group relative flex items-center gap-6 py-8 border-b border-black/5 overflow-hidden cursor-crosshair transition-all duration-500 ${
+      className={`group relative block w-full border-b border-black/5 bg-white overflow-hidden cursor-crosshair transition-all duration-500 ${
         isAnyHovered && !isHovered ? "opacity-30" : "opacity-100"
       }`}
       onMouseEnter={onMouseEnter}
@@ -115,8 +119,8 @@ function ProjectRow({
         style={{ transformOrigin: "left center" }}
       />
 
-      {/* Content — z-10 to sit above fill */}
-      <div className="relative z-10 w-full flex items-center gap-4 md:gap-8 overflow-hidden">
+      {/* Content Wrapper — Reintroducing max-width internally to align with header */}
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10 w-full flex items-center gap-4 md:gap-8 py-8 overflow-hidden">
         {/* Index number */}
         <span className={`text-[12px] font-mono font-bold tracking-widest transition-colors duration-500 shrink-0 ${isHovered ? "text-white" : "opacity-20"}`}>
           [{project.index}]
@@ -158,7 +162,8 @@ function ProjectRow({
         />
       </div>
 
-      {/* Decorative corner lines */}
+      {/* Decorative corner lines (also spanning full width or relative to centered content?) */}
+      {/* We'll keep them relative to the full viewport for now as they are "edge" decorations */}
       <div className={`absolute top-0 right-0 w-32 h-[1px] bg-white transform transition-transform duration-700 ${isHovered ? "translate-x-0" : "translate-x-full"}`} />
       <div className={`absolute top-0 right-0 h-full w-[1px] bg-white/20 transform transition-all duration-700 ${isHovered ? "opacity-100" : "opacity-0"}`} />
     </Link>

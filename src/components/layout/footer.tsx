@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import BracketButton from "@/components/ui/bracket-button";
 
 const MARQUEE_ITEMS = [
   "DESIGNER", "·", "DEVELOPER", "·", "MOTION", "·", "SYSTEMS", "·",
@@ -190,18 +191,17 @@ export default function Footer() {
                 Open for collaborations, contracts, and creative chaos.
               </p>
             </div>
-            <Link
-              href="/contact"
-              className="group relative inline-flex items-center gap-3 px-6 py-4 border border-white/10 hover:border-[#0066FF] hover:bg-[#0066FF] transition-all duration-500 overflow-hidden self-start"
-            >
-              <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-white relative z-10">
+            <div className="self-start mt-4">
+              <BracketButton
+                href="/contact"
+                color="black"
+                initialBgColor="#FFFFFF"
+                borderColor="#0066FF"
+                hoverBorderColor="#FFFFFF"
+              >
                 Transmit
-              </span>
-              <ArrowUpRight
-                size={14}
-                className="text-white relative z-10 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300"
-              />
-            </Link>
+              </BracketButton>
+            </div>
           </div>
         </motion.div>
       </div>

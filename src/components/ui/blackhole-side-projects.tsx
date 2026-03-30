@@ -1,7 +1,136 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useTransform, animate, MotionValue } from "framer-motion";
+import { motion, useMotionValue, useTransform, animate, MotionValue, useSpring } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+
+// Reusable static "Hero-style" decorative corner lines for the HUD / Magnifying glass
+function HUDBrackets({
+    width,
+    height,
+    color,
+    isHovered = false,
+    isStatic = false,
+}: {
+    width: number;
+    height: number;
+    color: string;
+    isHovered?: boolean;
+    isStatic?: boolean;
+}) {
+    // Colors based on state
+    const backboneColor = isStatic ? "rgba(217, 217, 217, 0.15)" : "#0066FF";
+    const nibColor = isHovered ? "#0066FF" : (isStatic ? "#D9D9D9" : "#000000");
+    
+    // Geometry based on balanced corner structure
+    const L_W = 40;
+    const L_H = 40;
+    const slantW = 4; // diagonal slant width
+    
+    // Animate individual Nib Lengths for interaction natively with physics
+    const nibLenSpring = useSpring(20, { stiffness: 300, damping: 25 });
+    const slantSpring = useSpring(slantW, { stiffness: 300, damping: 25 });
+
+    useEffect(() => {
+        if (isStatic) return;
+        nibLenSpring.set(isHovered ? 40 : 20);
+        slantSpring.set(isHovered ? 0 : slantW);
+    }, [isHovered, isStatic, nibLenSpring, slantSpring]);
+
+    // Construct reactive paths
+    const pathD1 = useTransform(() => {
+        const len = nibLenSpring.get();
+        const s = slantSpring.get();
+        return `M${L_W - len} -2L${L_W - len + s} 2H${L_W}V-2H${L_W - len}Z`;
+    });
+
+    const pathD2 = useTransform(() => {
+        const len = nibLenSpring.get();
+        const s = slantSpring.get();
+        return `M-2 ${L_H - len}L2 ${L_H - len + s}V${L_H}H-2V${L_H - len}Z`;
+    });
+
+    const CornerG = () => (
+        <g>
+            {/* Backbone L-shape (thin) */}
+            <path d={`M${L_W} 0H0V${L_H}`} stroke={backboneColor} strokeWidth="4" fill="none" />
+            
+            {/* Top-Right Nib (slanted at the end of horizontal leg) */}
+            <motion.path 
+                d={pathD1} 
+                fill={nibColor} 
+            />
+            
+            {/* Bottom-Left Nib (slanted at the end of vertical leg) */}
+            <motion.path 
+                d={pathD2} 
+                fill={nibColor} 
+            />
+        </g>
+    );
+
+    return (
+        <svg
+            width={width}
+            height={height}
+            viewBox={`0 0 ${width} ${height}`}
+            className="absolute inset-0 w-full h-full z-[60] overflow-visible pointer-events-none"
+        >
+            {/* Top-Right Corner */}
+            <g transform={`translate(${width}, 0) scale(-1, 1)`}>
+                <CornerG />
+            </g>
+
+            {/* Bottom-Left Corner */}
+            <g transform={`translate(0, ${height}) scale(1, -1)`}>
+                <CornerG />
+            </g>
+
+            {/* Global Closing Lines (1px black) - Outermost edges flushed at -2 / +2 */}
+            <g opacity={isStatic ? 0 : 1}>
+                {/* Top Edge (shoots from TL corner inward to TR bracket tip) */}
+                <motion.path
+                    d={`M-2 -2L${width - L_W} -2`}
+                    stroke="#000000"
+                    strokeWidth="1"
+                    fill="none"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 30 }}
+                />
+                {/* Right Edge (shoots from BR corner inward to TR bracket tip) */}
+                <motion.path
+                    d={`M${width + 2} ${height + 2}L${width + 2} ${L_H}`}
+                    stroke="#000000"
+                    strokeWidth="1"
+                    fill="none"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 30 }}
+                />
+                {/* Bottom Edge (shoots from BR corner inward to BL bracket tip) */}
+                <motion.path
+                    d={`M${width + 2} ${height + 2}L${L_W} ${height + 2}`}
+                    stroke="#000000"
+                    strokeWidth="1"
+                    fill="none"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 30 }}
+                />
+                {/* Left Edge (shoots from TL corner inward to BL bracket tip) */}
+                <motion.path
+                    d={`M-2 -2L-2 ${height - L_H}`}
+                    stroke="#000000"
+                    strokeWidth="1"
+                    fill="none"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: isHovered ? 1 : 0, opacity: isHovered ? 1 : 0 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 30 }}
+                />
+            </g>
+        </svg>
+    );
+}
 
 export const PROJECTS = [
     { src: "/images/projects/blackhole-1.png", alt: "SaaS Dashboard", desc: "A comprehensive analytics platform for enterprise SaaS, featuring real-time data visualization and user behavior tracking.", href: "#" },
@@ -479,6 +608,43 @@ export default function BlackHoleSideProjects({
 
     const [isSplitTargeted, setIsSplitTargeted] = useState(false);
     const splitTargetMotion = useMotionValue(0);
+    const hudRef = useRef<HTMLDivElement>(null);
+
+    // Global pointer safety: reset hover if mouse leaves container area via global check
+    useEffect(() => {
+        if (!isHovered) return;
+        const handleGlobalMove = (e: PointerEvent) => {
+            if (!hudRef.current) return;
+            const rect = hudRef.current.getBoundingClientRect();
+            // Using a safe buffer (5px) for the check
+            if (
+                e.clientX < rect.left - 5 ||
+                e.clientX > rect.right + 5 ||
+                e.clientY < rect.top - 5 ||
+                e.clientY > rect.bottom + 5
+            ) {
+                setIsHovered(false);
+                onHoverChange?.(false);
+            }
+        };
+
+        const handleFailsafe = () => {
+            setIsHovered(false);
+            onHoverChange?.(false);
+        };
+
+        window.addEventListener("pointermove", handleGlobalMove);
+        window.addEventListener("pointerleave", handleFailsafe);
+        window.addEventListener("blur", handleFailsafe);
+        document.addEventListener("pointerout", handleGlobalMove);
+        
+        return () => {
+            window.removeEventListener("pointermove", handleGlobalMove);
+            window.removeEventListener("pointerleave", handleFailsafe);
+            window.removeEventListener("blur", handleFailsafe);
+            document.removeEventListener("pointerout", handleGlobalMove);
+        };
+    }, [isHovered, onHoverChange]);
 
     useEffect(() => {
         setIsSplitTargeted(document.documentElement.getAttribute('data-projects-split') === 'true');
@@ -588,10 +754,12 @@ export default function BlackHoleSideProjects({
                             transform: "translate(-50%, -50%)"
                         }}
                     >
-                        <div className="absolute z-[70] pointer-events-none bg-[#D9D9D9]" style={{ top: 0, left: 0, width: 80, height: 80, clipPath: "polygon(0 0, 100% 0, calc(100% - 8px) 4px, 4px 4px, 4px calc(100% - 8px), 0 100%)" }} />
-                        <div className="absolute z-[70] pointer-events-none bg-[#D9D9D9]" style={{ top: 0, right: 0, width: 40, height: 40, clipPath: "polygon(0 0, 100% 0, 100% 100%, calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) 4px, 8px 4px)" }} />
-                        <div className="absolute z-[70] pointer-events-none bg-[#D9D9D9]" style={{ bottom: 0, left: 0, width: 40, height: 40, clipPath: "polygon(0 0, 4px 8px, 4px calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), 100% 100%, 0 100%)" }} />
-                        <div className="absolute z-[70] pointer-events-none bg-[#D9D9D9]" style={{ bottom: 0, right: 0, width: 80, height: 80, clipPath: "polygon(100% 0, calc(100% - 4px) 8px, calc(100% - 4px) calc(100% - 4px), 8px calc(100% - 4px), 0 100%, 100% 100%)" }} />
+                        <HUDBrackets 
+                            width={540} 
+                            height={418.5} 
+                            color="#D9D9D9" 
+                            isStatic={true} 
+                        />
                     </div>
                 )}
             </div>
@@ -665,12 +833,13 @@ export default function BlackHoleSideProjects({
             </div>
 
             <motion.div
+                ref={hudRef}
                 className="absolute left-1/2 z-50 pointer-events-auto"
-                onMouseEnter={() => {
+                onPointerEnter={() => {
                     setIsHovered(true);
                     onHoverChange?.(true);
                 }}
-                onMouseLeave={() => {
+                onPointerLeave={() => {
                     setIsHovered(false);
                     onHoverChange?.(false);
                 }}
@@ -700,7 +869,7 @@ export default function BlackHoleSideProjects({
                 <div className="absolute inset-0 bg-white/[0.04]" />
                 {!isStatic && (
                     <div
-                        className="absolute -inset-[24px]"
+                        className="absolute -inset-[24px] pointer-events-none"
                         style={{
                             background: "radial-gradient(ellipse at center, rgba(255,255,255,0.06) 0%, transparent 70%)",
                             filter: "blur(18px)",
@@ -730,57 +899,12 @@ export default function BlackHoleSideProjects({
                         />
                     )}
                 </div>
-                <motion.div
-                    className={`absolute z-[60] pointer-events-none ${isStatic ? 'bg-[#D9D9D9]' : 'bg-[#0066FF]'}`}
-                    style={{
-                        top: 0,
-                        left: 0,
-                        width: sizePairA,
-                        height: sizePairA,
-                        clipPath: "polygon(0 0, 100% 0, calc(100% - 8px) 4px, 4px 4px, 4px calc(100% - 8px), 0 100%)",
-                        backfaceVisibility: "hidden",
-                        WebkitBackfaceVisibility: "hidden",
-                        transform: "translateZ(0)"
-                    }}
-                />
-                <motion.div
-                    className={`absolute z-[60] pointer-events-none ${isStatic ? 'bg-[#D9D9D9]' : 'bg-[#0066FF]'}`}
-                    style={{
-                        top: 0,
-                        right: 0,
-                        width: sizePairB,
-                        height: sizePairB,
-                        clipPath: "polygon(0 0, 100% 0, 100% 100%, calc(100% - 4px) calc(100% - 8px), calc(100% - 4px) 4px, 8px 4px)",
-                        backfaceVisibility: "hidden",
-                        WebkitBackfaceVisibility: "hidden",
-                        transform: "translateZ(0)"
-                    }}
-                />
-                <motion.div
-                    className={`absolute z-[60] pointer-events-none ${isStatic ? 'bg-[#D9D9D9]' : 'bg-[#0066FF]'}`}
-                    style={{
-                        bottom: 0,
-                        left: 0,
-                        width: sizePairB,
-                        height: sizePairB,
-                        clipPath: "polygon(0 0, 4px 8px, 4px calc(100% - 4px), calc(100% - 8px) calc(100% - 4px), 100% 100%, 0 100%)",
-                        backfaceVisibility: "hidden",
-                        WebkitBackfaceVisibility: "hidden",
-                        transform: "translateZ(0)"
-                    }}
-                />
-                <motion.div
-                    className={`absolute z-[60] pointer-events-none ${isStatic ? 'bg-[#D9D9D9]' : 'bg-[#0066FF]'}`}
-                    style={{
-                        bottom: 0,
-                        right: 0,
-                        width: sizePairA,
-                        height: sizePairA,
-                        clipPath: "polygon(100% 0, calc(100% - 4px) 8px, calc(100% - 4px) calc(100% - 4px), 8px calc(100% - 4px), 0 100%, 100% 100%)",
-                        backfaceVisibility: "hidden",
-                        WebkitBackfaceVisibility: "hidden",
-                        transform: "translateZ(0)"
-                    }}
+                <HUDBrackets 
+                    width={540} 
+                    height={418.5} 
+                    color={isHovered ? "#000000" : (isStatic ? "#D9D9D9" : "#0066FF")} 
+                    isHovered={isHovered}
+                    isStatic={isStatic}
                 />
             </motion.div>
         </div>

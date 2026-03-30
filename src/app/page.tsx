@@ -12,8 +12,8 @@ import { PROJECTS } from "@/components/ui/blackhole-side-projects";
 import dynamic from "next/dynamic";
 import BracketButton from "@/components/ui/bracket-button";
 import MotionTracker from "@/components/ui/motion-tracker";
-
-
+import { CursorBrush } from "@/components/ui/cursor-brush";
+import { EnergyGathering } from "@/components/ui/energy-gathering";
 const BlackHoleSideProjects = dynamic(
   () => import("@/components/ui/blackhole-side-projects"),
   { ssr: false }
@@ -228,6 +228,9 @@ export default function Home() {
 
   const trackerRef = React.useRef<HTMLDivElement>(null);
 
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
   useEffect(() => {
     let animationFrameId: number;
 
@@ -265,6 +268,9 @@ export default function Home() {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
+      mouseX.set(e.clientX);
+      mouseY.set(e.clientY);
+
       if (preloaderState === "DONE") {
         updateEye(e.clientX, e.clientY);
       }
@@ -292,6 +298,8 @@ export default function Home() {
 
   return (
     <>
+      {preloaderState === "DONE" && <CursorBrush externalX={mouseX} externalY={mouseY} />}
+      {preloaderState !== "DONE" && <EnergyGathering x={mouseX} y={mouseY} />}
       <AnimatePresence>
         {preloaderState !== "DONE" && (
           <motion.div
@@ -570,7 +578,13 @@ export default function Home() {
                 variant="light"
               />
             </div>
-            <BracketButton href="/contact" color="black">
+            <BracketButton 
+              href="/contact" 
+              color="white" 
+              initialBgColor="#000000" 
+              borderColor="#0066FF"
+              hoverBorderColor="#000000"
+            >
               Get a quote
             </BracketButton>
           </div>
@@ -619,10 +633,9 @@ export default function Home() {
                   Open a channel. Let&apos;s build something worth archiving.
                 </p>
               </div>
-              <a href="/contact" className="group flex items-center gap-4 px-10 py-6 bg-black text-white hover:bg-white hover:text-black transition-all duration-500 shrink-0">
-                <span className="text-[13px] font-bold uppercase tracking-[0.4em]">Transmit a Message</span>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300"><path d="M3 15L15 3M15 3H3M15 3V15" stroke="currentColor" strokeWidth="1.5"/></svg>
-              </a>
+              <BracketButton href="/contact" color="white" initialBgColor="#000000" borderColor="#FFFFFF" hoverBgColor="#FFFFFF">
+                Transmit a Message
+              </BracketButton>
             </div>
             <div className="mt-24 pt-8 border-t border-white/10 flex flex-wrap justify-between gap-8 text-[10px] font-mono text-white/30 uppercase tracking-[0.3em]">
               <div className="flex gap-8">

@@ -75,7 +75,7 @@ export function EnergyGathering({ x, y }: { x: MotionValue<number>; y: MotionVal
 
   return (
     <motion.div
-      className="fixed pointer-events-none z-[50]"
+      className="fixed pointer-events-none z-[9999]"
       style={{
         left: smoothX,
         top: smoothY,

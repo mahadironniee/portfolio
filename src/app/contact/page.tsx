@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CursorBrush } from "@/components/ui/cursor-brush";
+import BracketButton from "@/components/ui/bracket-button";
 import { ArrowRight, Send } from "lucide-react";
 
 export default function ContactPage() {
@@ -144,21 +145,18 @@ export default function ContactPage() {
             </div>
 
             {/* Submit Button */}
-            <motion.button
-              type="submit"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative w-full py-6 mt-8 flex items-center justify-center gap-4 bg-black text-white hover:bg-[#0066FF] transition-colors duration-500 overflow-hidden group"
-            >
-              <span className="text-[14px] font-bold uppercase tracking-[0.4em] relative z-10">Transmit Message</span>
-              <Send size={18} className="relative z-10 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform duration-500" />
-              
-              {/* Technical Detail: Animated Background Lines for button hover */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity pointer-events-none">
-                 <div className="absolute top-0 left-0 w-full h-[1px] bg-white translate-x-full group-hover:translate-x-0 transition-transform duration-700 delay-100" />
-                 <div className="absolute bottom-0 right-0 w-full h-[1px] bg-white -translate-x-full group-hover:translate-x-0 transition-transform duration-700 delay-100" />
-              </div>
-            </motion.button>
+            <div className="mt-8">
+              <BracketButton
+                type="submit"
+                color="white"
+                initialBgColor="#000000"
+                borderColor="#FFFFFF"
+                hoverBgColor="#FFFFFF"
+                className="w-full"
+              >
+                Transmit Message
+              </BracketButton>
+            </div>
           </motion.form>
           
           {/* Bottom Technical Specs */}

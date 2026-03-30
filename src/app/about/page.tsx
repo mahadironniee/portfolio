@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { CursorBrush } from "@/components/ui/cursor-brush";
+import BracketButton from "@/components/ui/bracket-button";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -242,13 +243,15 @@ export default function AboutPage() {
                 Have a project in mind? Let's open a channel and make something worth archiving.
               </p>
             </div>
-            <Link
-              href="/contact"
-              className="group relative flex items-center gap-4 px-8 py-5 bg-black text-white hover:bg-[#0066FF] transition-colors duration-500 overflow-hidden shrink-0"
+            <BracketButton 
+              href="/contact" 
+              color="white" 
+              initialBgColor="#000000"
+              borderColor="#FFFFFF"
+              hoverBgColor="#FFFFFF"
             >
-              <span className="text-[13px] font-bold uppercase tracking-[0.4em] relative z-10">Transmit a Message</span>
-              <ArrowRight size={18} className="relative z-10 group-hover:translate-x-2 transition-transform duration-500" />
-            </Link>
+              Transmit a Message
+            </BracketButton>
           </div>
         </motion.div>
 

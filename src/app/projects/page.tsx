@@ -38,10 +38,10 @@ export default function ProjectsPage() {
         <div className="absolute top-3/4 left-0 w-full h-[1px] bg-black" />
       </div>
 
-      <main className="max-w-[1400px] mx-auto relative z-10">
+      <main className="relative z-10 w-full">
 
         {/* ── Header ── */}
-        <div className="mb-24">
+        <div className="max-w-[1400px] mx-auto mb-24 px-6 md:px-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -125,14 +125,16 @@ export default function ProjectsPage() {
           </AnimatePresence>
         </div>
 
-        {/* ── Footer Technical Stats ── */}
-        <div className="mt-32 pt-8 border-t border-black/5 flex flex-wrap justify-between gap-12 opacity-20 text-[10px] font-mono uppercase tracking-[0.3em]">
-          <div className="flex gap-12">
-            <div>ARCHIVE: COMPLETE</div>
-            <div>RENDER: TURBOPACK</div>
-            <div>SECURE_LAYER: SSL_ENC</div>
+        {/* ── Footer Technical Stats (still centered) ── */}
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+          <div className="mt-32 pt-8 border-t border-black/5 flex flex-wrap justify-between gap-12 opacity-20 text-[10px] font-mono uppercase tracking-[0.3em]">
+            <div className="flex gap-12">
+              <div>ARCHIVE: COMPLETE</div>
+              <div>RENDER: TURBOPACK</div>
+              <div>SECURE_LAYER: SSL_ENC</div>
+            </div>
+            <div>LAST_SYNC: {new Date().getFullYear()}.{String(new Date().getMonth() + 1).padStart(2, "0")}.{String(new Date().getDate()).padStart(2, "0")}</div>
           </div>
-          <div>LAST_SYNC: {new Date().getFullYear()}.{String(new Date().getMonth() + 1).padStart(2, "0")}.{String(new Date().getDate()).padStart(2, "0")}</div>
         </div>
 
       </main>
@@ -156,7 +158,7 @@ function ProjectRow({
   return (
     <Link
       href={project.href}
-      className={`group relative flex items-center gap-6 py-8 border-b border-black/5 overflow-hidden cursor-crosshair transition-all duration-500 ${
+      className={`group relative block w-full border-b border-black/5 bg-white overflow-hidden cursor-crosshair transition-all duration-500 ${
         isAnyHovered && !isHovered ? "opacity-30" : "opacity-100"
       }`}
       onMouseEnter={onMouseEnter}
@@ -170,9 +172,8 @@ function ProjectRow({
         style={{ transformOrigin: "left center" }}
       />
 
-      {/* Content — z-10 to sit above fill */}
-      <div className="relative z-10 w-full flex items-center gap-4 md:gap-8">
-
+      {/* Content Wrapper — Reintroducing max-width internally to align with header */}
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10 w-full flex items-center gap-4 md:gap-8 py-8 overflow-hidden">
         {/* Index number */}
         <span className={`text-[12px] font-mono font-bold tracking-widest transition-colors duration-500 shrink-0 ${isHovered ? "text-white" : "opacity-20"}`}>
           [{project.index}]

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-
+import BracketButton from "@/components/ui/bracket-button";
 const EXPERIMENTS = [
   {
     id: "01",
@@ -38,7 +38,7 @@ export default function PlaygroundSection() {
   return (
     <section className="relative w-full py-32 bg-white text-black overflow-hidden selection:bg-[#0066FF] selection:text-white">
       {/* Background Grid - consistent with playground */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.05]">
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05] z-0">
         <div className="absolute inset-0" style={{ 
           backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)', 
           backgroundSize: '40px 40px' 
@@ -118,14 +118,16 @@ export default function PlaygroundSection() {
         </div>
 
         {/* View All Lab Activity */}
-        <div className="mt-20 flex justify-center">
-          <Link 
-            href="/playground"
-            className="group relative px-12 py-6 bg-black text-white hover:bg-[#0066FF] transition-all duration-500 overflow-hidden"
+        <div className="mt-20 flex justify-end">
+          <BracketButton 
+            href="/playground" 
+            color="white" 
+            initialBgColor="#000000" 
+            borderColor="#0066FF"
+            hoverBorderColor="#000000"
           >
-            <span className="relative z-10 text-[12px] font-bold uppercase tracking-[0.4em]">View All Activity</span>
-            <div className="absolute inset-0 bg-white transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 opacity-10" />
-          </Link>
+            View All Activity
+          </BracketButton>
         </div>
 
         {/* Technical Stats Footer */}
