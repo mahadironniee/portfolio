@@ -39,7 +39,7 @@ export default function ProjectsSection() {
               SELECTED_WORKS_v2.0
             </span>
           </div>
-          <h2 
+          <h2
             className="text-[clamp(60px,12vw,180px)] leading-[0.8] font-[900] uppercase tracking-[-0.04em]"
             style={{ fontFamily: 'var(--font-post-no-bills)' }}
           >
@@ -65,10 +65,10 @@ export default function ProjectsSection() {
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
         {/* Link to all projects */}
         <div className="mt-20 flex justify-end">
-          <BracketButton 
-            href="/projects" 
-            color="white" 
-            initialBgColor="#000000" 
+          <BracketButton
+            href="/projects"
+            color="white"
+            initialBgColor="#000000"
             borderColor="#0066FF"
             hoverBorderColor="#000000"
           >
@@ -105,17 +105,15 @@ function ProjectRow({
   return (
     <Link
       href={project.href}
-      className={`group relative block w-full border-b border-black/5 bg-white overflow-hidden cursor-crosshair transition-all duration-500 ${
-        isAnyHovered && !isHovered ? "opacity-30" : "opacity-100"
-      }`}
+      className={`group relative block w-full border-b border-black/5 bg-white overflow-hidden cursor-crosshair transition-all duration-500 ${isAnyHovered && !isHovered ? "opacity-30" : "opacity-100"
+        }`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
       {/* Full-width blue fill (wipes from left on hover) */}
       <div
-        className={`absolute inset-0 bg-[#0066FF] transition-transform duration-700 ease-[0.16,1,0.3,1] origin-left ${
-          isHovered ? "scale-x-100" : "scale-x-0"
-        }`}
+        className={`absolute inset-0 bg-[#0066FF] transition-transform duration-700 ease-[0.16,1,0.3,1] origin-left ${isHovered ? "scale-x-100" : "scale-x-0"
+          }`}
         style={{ transformOrigin: "left center" }}
       />
 

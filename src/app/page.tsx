@@ -696,12 +696,7 @@ export default function Home() {
 
             {/* Mobile: category label + description + CTA */}
             <div className="px-4 pb-4 flex flex-col gap-3" style={{ zIndex: 30 }}>
-              <div className="flex items-center gap-2">
-                <span className="text-[#0066FF] font-bold text-[11px] tracking-widest">#</span>
-                <span className="text-black font-bold text-[11px] tracking-[0.3em] uppercase">
-                  {activeProjectIdx !== -1 ? PROJECTS[activeProjectIdx].alt : "E-COMMERCE"}
-                </span>
-              </div>
+
 
               <div style={{ minHeight: "80px" }}>
                 <TypewriterText
