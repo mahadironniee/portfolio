@@ -20,7 +20,7 @@ export default function ProjectsSection() {
   })).slice(0, 5); // Just show the top 5 for the homepage
 
   return (
-    <section className="relative w-full py-32 bg-white text-black overflow-hidden selection:bg-white selection:text-[#0066FF]">
+    <section className="relative w-full py-32 bg-white text-black overflow-hidden selection:bg-white selection:text-[#0066FF] light-bg-nav-trigger">
       {/* Background Grid — consistent with projects page */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.04] overflow-hidden">
         <div className="absolute top-0 left-1/4 w-[1px] h-full bg-black" />

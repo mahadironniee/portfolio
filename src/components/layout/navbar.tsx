@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 function NavbarInner({
     textColor,
     isHovered,
+    setIsHovered,
     onMouseEnter,
     onMouseLeave,
     lockedPathname,
@@ -19,6 +20,7 @@ function NavbarInner({
     isWireframe,
     isLogoWireframe,
     isPreloading,
+    isSecondSection,
 }: {
     textColor: string;
     isHovered: boolean;
@@ -31,6 +33,7 @@ function NavbarInner({
     isWireframe?: boolean;
     isLogoWireframe?: boolean;
     isPreloading?: boolean;
+    isSecondSection?: boolean;
 }) {
     const rawPathname = usePathname();
     const pathname = lockedPathname || rawPathname;
@@ -166,7 +169,7 @@ function NavbarInner({
             </div>
 
             {/* Center: Dynamic Nav Tree & Progress */}
-            <div className={`flex flex-col items-center gap-1 ${isPreloading ? "pointer-events-none" : "pointer-events-auto"} relative`}>
+            <div className={`hidden md:flex flex-col items-center gap-1 ${isPreloading ? "pointer-events-none" : "pointer-events-auto"} relative`}>
                 <div className="flex items-center gap-4">
                     {/* The Nav Tree Controller */}
                     <div
@@ -422,7 +425,10 @@ function NavbarInner({
                     ) : (
                         <div className="w-[100px] md:w-[200px] h-[4px] relative rounded-full overflow-hidden">
                             {/* Track Layer */}
-                            <div className={`absolute inset-0 rounded-full ${isPreloading ? "bg-black/10" : "bg-black"}`} />
+                            <div 
+                                className="absolute inset-0 rounded-full transition-colors duration-300" 
+                                style={{ backgroundColor: isPreloading ? "rgba(0,0,0,0.1)" : (isSecondSection ? "#DBDBDB" : "#000000") }} 
+                            />
                             {/* Progress Layer */}
                             <div
                                 className={`h-full ${isPreloading ? "bg-[#B0B0B0]" : "bg-[#0066FF]"} relative z-10 w-[var(--scroll-w)] rounded-full`}
@@ -483,6 +489,7 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
 
     const [clipPath, setClipPath] = useState(isDarkPage ? "inset(0px 0px 0% 0px)" : "inset(0px 0px 100% 0px)");
     const [baseMask, setBaseMask] = useState(isDarkPage ? "linear-gradient(to bottom, transparent 0px, transparent 600px)" : "none");
+    const [isSecondSection, setIsSecondSection] = useState(false);
 
     // Sync state when preloading changes to avoid layout flicker
     useEffect(() => {
@@ -520,6 +527,15 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
                     forceDark = true;
                     break;
                 }
+            }
+
+            // 4. Second Section Detection for Trackpad Color
+            const secondTrigger = document.querySelector(".second-section-nav-trigger");
+            if (secondTrigger) {
+                const rect = secondTrigger.getBoundingClientRect();
+                setIsSecondSection(rect.top < navHeight && rect.bottom > 0);
+            } else {
+                setIsSecondSection(false);
             }
 
             if (forceDark) {
@@ -621,6 +637,7 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
                         isWireframe={isWireframe}
                         isLogoWireframe={isLogoWireframe}
                         isPreloading={isPreloading}
+                        isSecondSection={isSecondSection}
                     />
                 </div>
 
@@ -644,6 +661,7 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
                         isWireframe={isWireframe}
                         isLogoWireframe={isLogoWireframe}
                         isPreloading={isPreloading}
+                        isSecondSection={isSecondSection}
                     />
                 </div>
             </div>

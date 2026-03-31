@@ -6,7 +6,7 @@ import { BLACK_PATHS, GREY_PATHS } from "./heading-svg-data";
 
 interface SmokeCanvasProps {
     smokeOpacity: MotionValue<number>;
-    fillValue: MotionValue<string>;
+    hoverProgress: MotionValue<number>;
     distortionAmount: MotionValue<number>;
 }
 
@@ -93,10 +93,16 @@ const fsSource = `
         if (totalMask < 0.1) discard; 
         
         // Exact text colors
-        vec3 greyColor = vec3(186.0/255.0, 186.0/255.0, 186.0/255.0);
-        vec3 darkColor = vec3(81.0/255.0, 80.0/255.0, 85.0/255.0);
-        vec3 blackPathsColor = mix(greyColor, darkColor, u_hover);
-        vec3 baseColor = (greyMask * greyColor) + (blackMask * blackPathsColor);
+        vec3 brightColor = vec3(1.0, 1.0, 1.0); // #FFFFFF
+        vec3 greyColor = vec3(81.0/255.0, 80.0/255.0, 85.0/255.0); // #515055
+        
+        // Option A: Uniform Bright at rest, Selective Differentiate on hover
+        // Group A (Grey paths): starts bright, goes grey
+        vec3 colorA = mix(brightColor, greyColor, u_hover);
+        // Group B (Black paths): stays bright
+        vec3 colorB = mix(brightColor, brightColor, u_hover);
+        
+        vec3 baseColor = (greyMask * colorA) + (blackMask * colorB);
         
         // Generate internal smoky noise that flows upwards and swirls
         vec2 smokeUV = v_texCoord * 6.0 - vec2(t * 0.1, t * 0.8);
@@ -133,7 +139,7 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string): 
     return shader;
 }
 
-export default function SmokeCanvas({ smokeOpacity, fillValue, distortionAmount }: SmokeCanvasProps) {
+export default function SmokeCanvas({ smokeOpacity, hoverProgress, distortionAmount }: SmokeCanvasProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -215,8 +221,8 @@ export default function SmokeCanvas({ smokeOpacity, fillValue, distortionAmount 
             reqId = requestAnimationFrame(render);
             const elapsed = (now - startTime) / 1000;
             const currentOpacity = smokeOpacity.get();
-            const currentFill = fillValue.get();
-            const isHover = currentFill === "#515055" || currentFill === "rgba(81, 80, 85, 1)" ? 1.0 : 0.0;
+            const currentHover = hoverProgress.get();
+            const isHover = currentHover; // Now a direct 0-1 value
 
             gl.clearColor(0, 0, 0, 0); // Perfectly transparent background
             gl.clear(gl.COLOR_BUFFER_BIT);
@@ -241,7 +247,7 @@ export default function SmokeCanvas({ smokeOpacity, fillValue, distortionAmount 
             if (fragmentShader) gl.deleteShader(fragmentShader);
             gl.deleteTexture(maskTexture);
         };
-    }, [smokeOpacity, fillValue]);
+    }, [smokeOpacity, hoverProgress]);
 
     return (
         <canvas

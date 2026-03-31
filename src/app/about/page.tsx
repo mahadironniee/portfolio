@@ -60,7 +60,7 @@ export default function AboutPage() {
               className="text-[clamp(60px,14vw,200px)] leading-[0.85] font-[900] uppercase tracking-[-0.04em]"
               style={{ fontFamily: "var(--font-post-no-bills)" }}
             >
-              A<br />BOUT
+              ABOUT
             </h1>
 
             <div className="mt-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">

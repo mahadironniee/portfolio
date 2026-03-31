@@ -1,15 +1,22 @@
 "use client";
 
-import { motion, MotionValue } from "framer-motion";
+import { motion, MotionValue, useTransform } from "framer-motion";
 import { BLACK_PATHS, GREY_PATHS } from "./heading-svg-data";
 
 interface HeadingSvgProps {
-    fillValue: MotionValue<string>;
+    hoverProgress: MotionValue<number>;
 }
 
-const GREY = "#BABABA";
+const BRIGHT = "#FFFFFF";
+const GREY = "#515055";
 
-export default function HeadingSvg({ fillValue }: HeadingSvgProps) {
+export default function HeadingSvg({ hoverProgress }: HeadingSvgProps) {
+    // Group A (GREY_PATHS): Starts BRIGHT, goes GREY on hover
+    const colorA = useTransform(hoverProgress, [0, 1], [BRIGHT, GREY]);
+    
+    // Group B (BLACK_PATHS): Starts BRIGHT, stays BRIGHT on hover
+    const colorB = useTransform(hoverProgress, [0, 1], [BRIGHT, BRIGHT]);
+
     return (
         <svg
             width="1751"
@@ -19,19 +26,24 @@ export default function HeadingSvg({ fillValue }: HeadingSvgProps) {
             className="w-full h-auto max-w-[1751px]"
             style={{ pointerEvents: "none" }}
         >
-            {/* Grey paths: always #BABABA */}
+            {/* Group A: GREY -> BRIGHT */}
             {GREY_PATHS.map((d, i) => (
-                <path key={`g-${i}`} d={d} fill={GREY} />
+                <motion.path 
+                    key={`g-${i}`} 
+                    d={d} 
+                    style={{ fill: colorA }} 
+                />
             ))}
 
-            {/* Black paths: fill driven directly by the motion value from parent */}
+            {/* Group B: BRIGHT -> GREY */}
             {BLACK_PATHS.map((d, i) => (
                 <motion.path
                     key={`b-${i}`}
                     d={d}
-                    style={{ fill: fillValue }}
+                    style={{ fill: colorB }}
                 />
             ))}
         </svg>
     );
 }
+

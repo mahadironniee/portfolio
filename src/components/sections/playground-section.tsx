@@ -36,7 +36,7 @@ export default function PlaygroundSection() {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   return (
-    <section className="relative w-full py-32 bg-white text-black overflow-hidden selection:bg-[#0066FF] selection:text-white">
+    <section className="relative w-full py-32 bg-white text-black overflow-hidden selection:bg-[#0066FF] selection:text-white light-bg-nav-trigger">
       {/* Background Grid - consistent with playground */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.05] z-0">
         <div className="absolute inset-0" style={{ 

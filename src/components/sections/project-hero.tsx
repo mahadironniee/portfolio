@@ -22,16 +22,14 @@ export default function ProjectHero() {
       {/* Background Outlines (Kinetic) */}
       <div className="absolute inset-0 pointer-events-none opacity-10">
         <motion.div 
-            style={{ y: y1, rotate: -2 }}
+            style={{ y: y1, rotate: -2, WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}
             className="absolute top-1/4 -left-10 text-[20vw] font-bold whitespace-nowrap text-transparent border-text-white"
-            css={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}
         >
           ARCHIVE ARCHIVE ARCHIVE
         </motion.div>
         <motion.div 
-            style={{ y: y2, rotate: 2 }}
+            style={{ y: y2, rotate: 2, WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}
             className="absolute bottom-1/4 -right-10 text-[20vw] font-bold whitespace-nowrap text-transparent border-text-white"
-            css={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}
         >
           VAULT VAULT VAULT
         </motion.div>

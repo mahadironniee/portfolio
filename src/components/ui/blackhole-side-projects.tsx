@@ -19,13 +19,13 @@ function HUDBrackets({
 }) {
     // Colors based on state
     const backboneColor = isStatic ? "rgba(217, 217, 217, 0.15)" : "#0066FF";
-    const nibColor = isHovered ? "#0066FF" : (isStatic ? "#D9D9D9" : "#000000");
-    
+    const nibColor = isHovered ? "#0066FF" : (isStatic ? "#D9D9D9" : "#0066FF");
+
     // Geometry based on balanced corner structure
     const L_W = 40;
     const L_H = 40;
     const slantW = 4; // diagonal slant width
-    
+
     // Animate individual Nib Lengths for interaction natively with physics
     const nibLenSpring = useSpring(20, { stiffness: 300, damping: 25 });
     const slantSpring = useSpring(slantW, { stiffness: 300, damping: 25 });
@@ -53,17 +53,17 @@ function HUDBrackets({
         <g>
             {/* Backbone L-shape (thin) */}
             <path d={`M${L_W} 0H0V${L_H}`} stroke={backboneColor} strokeWidth="4" fill="none" />
-            
+
             {/* Top-Right Nib (slanted at the end of horizontal leg) */}
-            <motion.path 
-                d={pathD1} 
-                fill={nibColor} 
+            <motion.path
+                d={pathD1}
+                fill={nibColor}
             />
-            
+
             {/* Bottom-Left Nib (slanted at the end of vertical leg) */}
-            <motion.path 
-                d={pathD2} 
-                fill={nibColor} 
+            <motion.path
+                d={pathD2}
+                fill={nibColor}
             />
         </g>
     );
@@ -90,7 +90,7 @@ function HUDBrackets({
                 {/* Top Edge (shoots from TL corner inward to TR bracket tip) */}
                 <motion.path
                     d={`M-2 -2L${width - L_W} -2`}
-                    stroke="#000000"
+                    stroke="#0066FF"
                     strokeWidth="1"
                     fill="none"
                     initial={{ pathLength: 0, opacity: 0 }}
@@ -100,7 +100,7 @@ function HUDBrackets({
                 {/* Right Edge (shoots from BR corner inward to TR bracket tip) */}
                 <motion.path
                     d={`M${width + 2} ${height + 2}L${width + 2} ${L_H}`}
-                    stroke="#000000"
+                    stroke="#0066FF"
                     strokeWidth="1"
                     fill="none"
                     initial={{ pathLength: 0, opacity: 0 }}
@@ -110,7 +110,7 @@ function HUDBrackets({
                 {/* Bottom Edge (shoots from BR corner inward to BL bracket tip) */}
                 <motion.path
                     d={`M${width + 2} ${height + 2}L${L_W} ${height + 2}`}
-                    stroke="#000000"
+                    stroke="#0066FF"
                     strokeWidth="1"
                     fill="none"
                     initial={{ pathLength: 0, opacity: 0 }}
@@ -120,7 +120,7 @@ function HUDBrackets({
                 {/* Left Edge (shoots from TL corner inward to BL bracket tip) */}
                 <motion.path
                     d={`M-2 -2L-2 ${height - L_H}`}
-                    stroke="#000000"
+                    stroke="#0066FF"
                     strokeWidth="1"
                     fill="none"
                     initial={{ pathLength: 0, opacity: 0 }}
@@ -531,7 +531,7 @@ const ProjectCard = ({
                     </motion.div>
                 )}
                 {isStatic && i === 3 && (
-                    <motion.div 
+                    <motion.div
                         className="absolute inset-0 flex items-center justify-center pointer-events-none z-20"
                         style={{ opacity: useTransform(splitTargetMotion, [0, 1], [0, 0.4]) }}
                     >
@@ -549,7 +549,7 @@ const ProjectCard = ({
                     </motion.div>
                 )}
                 {isStatic && i === 1 && (
-                    <motion.div 
+                    <motion.div
                         className="absolute inset-0 z-20 pointer-events-none overflow-hidden"
                         style={{ opacity: useTransform(splitTargetMotion, [0, 1], [0, 0.4]) }}
                     >
@@ -637,7 +637,7 @@ export default function BlackHoleSideProjects({
         window.addEventListener("pointerleave", handleFailsafe);
         window.addEventListener("blur", handleFailsafe);
         document.addEventListener("pointerout", handleGlobalMove);
-        
+
         return () => {
             window.removeEventListener("pointermove", handleGlobalMove);
             window.removeEventListener("pointerleave", handleFailsafe);
@@ -754,11 +754,11 @@ export default function BlackHoleSideProjects({
                             transform: "translate(-50%, -50%)"
                         }}
                     >
-                        <HUDBrackets 
-                            width={540} 
-                            height={418.5} 
-                            color="#D9D9D9" 
-                            isStatic={true} 
+                        <HUDBrackets
+                            width={540}
+                            height={418.5}
+                            color="#D9D9D9"
+                            isStatic={true}
                         />
                     </div>
                 )}
@@ -767,42 +767,9 @@ export default function BlackHoleSideProjects({
     }
 
     if (isMobile) {
-        return (
-            <div className="absolute bottom-[20px] left-0 w-full overflow-hidden z-20 px-4">
-                <div className="flex gap-4 overflow-x-auto no-scrollbar pb-8 snap-x snap-mandatory">
-                    {PROJECTS.map((project, i) => (
-                        <motion.div
-                            key={i}
-                            className="flex-shrink-0 snap-center"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            onViewportEnter={() => onActiveChange?.(i)}
-                        >
-                            <Link href={project.href} className="block group">
-                                <div
-                                    className={`relative overflow-hidden border-none outline-none ${isStatic ? "bg-[#D9D9D9]" : "bg-black"}`}
-                                    style={{ width: MOBILE_CARD_W, height: MOBILE_CARD_H }}
-                                >
-                                    {!isStatic && (
-                                        <Image
-                                            src={project.src}
-                                            alt={project.alt}
-                                            fill
-                                            className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                                            sizes="300px"
-                                        />
-                                    )}
-                                    <div className={`absolute inset-x-0 bottom-0 p-4 ${isStatic ? "" : "bg-gradient-to-t from-black/80 to-transparent"}`}>
-                                        <h4 className="text-white font-bold text-sm tracking-widest uppercase">{project.alt}</h4>
-                                    </div>
-                                </div>
-                            </Link>
-                        </motion.div>
-                    ))}
-                </div>
-            </div>
-        );
+        // Mobile cards are rendered directly in the hero layout (page.tsx).
+        // The RAF timer here still runs and fires onActiveChange to cycle projects.
+        return null;
     }
 
     return (
@@ -899,10 +866,10 @@ export default function BlackHoleSideProjects({
                         />
                     )}
                 </div>
-                <HUDBrackets 
-                    width={540} 
-                    height={418.5} 
-                    color={isHovered ? "#000000" : (isStatic ? "#D9D9D9" : "#0066FF")} 
+                <HUDBrackets
+                    width={540}
+                    height={418.5}
+                    color={isHovered ? "#000000" : (isStatic ? "#D9D9D9" : "#0066FF")}
                     isHovered={isHovered}
                     isStatic={isStatic}
                 />
