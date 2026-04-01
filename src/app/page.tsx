@@ -549,8 +549,8 @@ export default function Home() {
             <Image src="/svgs/right-below-line.svg" alt="" width={126} height={81} />
           </div>
 
-          {/* ══════ DESKTOP LAYOUT ══════ */}
-          <div className="hidden md:block">
+          {/* ══════ DESKTOP LAYOUT (LARGE 1920+) ══════ */}
+          <div className="hidden 2xl:block">
             {/* Desktop: HeroHeadlineSVG (the "designer" text) at bottom-left */}
             <div className="absolute left-[-103px] bottom-[-100px] w-[1202px] h-[604px] pointer-events-none z-0">
               <Image
@@ -618,8 +618,84 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Desktop-only: sub-heading label bar — must be a direct child of main for correct absolute positioning */}
-          <div className="hidden md:block absolute bottom-8 md:bottom-6 w-full max-w-[1400px] h-[32px] px-3 translate-x-[60px] pointer-events-none z-[210]" style={{ filter: "brightness(0)" }}>
+          {/* ══════ LAPTOP LAYOUT (13-15") ══════ */}
+          <div className="hidden md:block 2xl:hidden">
+            {/* Laptop: Scaled-down SVG headline */}
+            <div className="absolute left-[-150px] bottom-[-100px] w-[950px] h-[478px] pointer-events-none z-0">
+              <Image
+                src="/svgs/HeroHeadlineSVG-Live.svg"
+                alt="Designer Creative Headline"
+                fill
+                className="object-contain"
+                priority
+              />
+
+              <motion.div
+                ref={eyeRef}
+                className="absolute pointer-events-auto cursor-pointer bg-[#F0F0F0] rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+                onMouseEnter={() => eyeHoverMotion.set(1)}
+                onMouseLeave={() => eyeHoverMotion.set(0)}
+                style={{
+                  width: 32,
+                  height: 32,
+                  left: 503,
+                  top: 96,
+                  x: smoothSocketX,
+                  y: smoothSocketY,
+                  scaleX: smoothSocketScaleX,
+                  scaleY: smoothSocketScaleY,
+                }}
+              >
+                <motion.div
+                  style={{
+                    width: 20,
+                    height: 20,
+                    left: 6,
+                    top: 6,
+                    x: smoothX,
+                    y: smoothY,
+                    scaleX: finalPupilScaleX,
+                    scaleY: finalPupilScaleY,
+                  }}
+                  className="absolute"
+                >
+                  <div className="w-full h-full bg-black rounded-full animate-blink" />
+                </motion.div>
+              </motion.div>
+            </div>
+
+            {/* Laptop: Scaled-down TypewriterText + CTA */}
+            <div className="absolute z-[210] flex flex-col items-end gap-2 origin-top-left" style={{ left: "15%", top: "calc(40% - 100px)", width: "550px", transform: "scale(0.85)" }}>
+              <div className="w-full h-[220px] relative top-1">
+                <TypewriterText
+                  title={activeProjectIdx !== -1 ? PROJECTS[activeProjectIdx].alt : ""}
+                  text={activeProjectIdx !== -1 ? PROJECTS[activeProjectIdx].desc : ""}
+                  isActive={activeProjectIdx !== -1}
+                  isPaused={isProjectHovered}
+                  variant="light"
+                />
+              </div>
+              <BracketButton
+                href="/contact"
+                color="white"
+                initialBgColor="#000000"
+                borderColor="#0066FF"
+                hoverBorderColor="#000000"
+              >
+                Get a quote
+              </BracketButton>
+            </div>
+          </div>
+
+          {/* LARGE DESKTOP: sub-heading label bar */}
+          <div className="hidden 2xl:block absolute bottom-8 md:bottom-6 w-full max-w-[1400px] h-[32px] px-3 translate-x-[60px] pointer-events-none z-[210]" style={{ filter: "brightness(0)" }}>
+            <div className="relative w-full h-full">
+              <Image src="/svgs/hero-sub-heading.svg" alt="" fill className="object-contain" />
+            </div>
+          </div>
+
+          {/* LAPTOP: scaled-down sub-heading label bar */}
+          <div className="hidden md:block 2xl:hidden absolute bottom-6 w-full max-w-[1000px] h-[24px] px-3 translate-x-[0px] pointer-events-none z-[210]" style={{ filter: "brightness(0)" }}>
             <div className="relative w-full h-full">
               <Image src="/svgs/hero-sub-heading.svg" alt="" fill className="object-contain" />
             </div>

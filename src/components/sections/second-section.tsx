@@ -111,45 +111,113 @@ export default function SecondSection() {
             className="relative w-full h-[100vh] dark-bg-nav-trigger second-section-nav-trigger"
         >
             {/* Standard Container - The section will just flow naturally into the fully blue CTA without pinning */}
-            <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+            <div className="relative w-full h-full overflow-hidden">
                 
-                {/* Block 1: Geometric Reveal Background */}
-                <div className="absolute inset-0 z-[1] pointer-events-none">
-                    <GeometricBackground
-                        progress={geoProgress}
-                        x={backgroundX}
-                        y={backgroundY}
-                        opacity={0.1}
-                        isMask={false}
-                        isInverse={false}
-                        fillColor="#000000"
-                        triggerRange={[0, 1]}
-                        strokeColor="#FFFFFF"
-                    />
+                {/* ══════ DESKTOP LAYOUT (LARGE 1920+) ══════ */}
+                <div className="hidden 2xl:block relative w-full h-full flex items-center justify-center">
+                    {/* Block 1: Geometric Reveal Background */}
+                    <div className="absolute inset-0 z-[1] pointer-events-none">
+                        <GeometricBackground
+                            progress={geoProgress}
+                            x={backgroundX}
+                            y={backgroundY}
+                            opacity={0.1}
+                            isMask={false}
+                            isInverse={false}
+                            fillColor="#000000"
+                            triggerRange={[0, 1]}
+                            strokeColor="#FFFFFF"
+                        />
+                    </div>
+
+                    {/* Block 3: The Heading Text - HIGHEST Z-INDEX to stay on top of sliding window */}
+                    <motion.div 
+                        style={{ y: headingY }}
+                        className="absolute inset-0 z-[100] w-full h-full flex flex-col items-center justify-center pointer-events-none"
+                    >
+                        <div ref={svgRef} className="w-full max-w-[1751px] aspect-[1751/336] relative select-none pointer-events-auto">
+                            <SmokeCanvas
+                                smokeOpacity={smokeOpacity}
+                                hoverProgress={hoverProgress}
+                                distortionAmount={distortionAmount}
+                            />
+                            <motion.div style={{ opacity: crispVectorOpacity }} className="w-full h-full relative z-10">
+                                <HeadingSvg hoverProgress={hoverProgress} />
+                            </motion.div>
+                        </div>
+                    </motion.div>
                 </div>
 
-
-
-
-                {/* Block 2: PREVIOUS Grid removed in favor of Window Background */}
-
-
-                {/* Block 3: The Heading Text - HIGHEST Z-INDEX to stay on top of sliding window */}
-                <motion.div 
-                    style={{ y: headingY }}
-                    className="absolute z-[100] w-full flex flex-col items-center justify-center pointer-events-none"
-                >
-                    <div ref={svgRef} className="w-full max-w-[1751px] aspect-[1751/336] relative select-none pointer-events-auto">
-                        <SmokeCanvas
-                            smokeOpacity={smokeOpacity}
-                            hoverProgress={hoverProgress}
-                            distortionAmount={distortionAmount}
+                {/* ══════ LAPTOP LAYOUT (13-15") ══════ */}
+                <div className="hidden md:block 2xl:hidden relative w-full h-full flex items-center justify-center">
+                    {/* Block 1: Geometric Reveal Background */}
+                    <div className="absolute inset-0 z-[1] pointer-events-none">
+                        <GeometricBackground
+                            progress={geoProgress}
+                            x={backgroundX}
+                            y={backgroundY}
+                            opacity={0.1}
+                            isMask={false}
+                            isInverse={false}
+                            fillColor="#000000"
+                            triggerRange={[0, 1]}
+                            strokeColor="#FFFFFF"
                         />
-                        <motion.div style={{ opacity: crispVectorOpacity }} className="w-full h-full relative z-10">
-                            <HeadingSvg hoverProgress={hoverProgress} />
-                        </motion.div>
                     </div>
-                </motion.div>
+
+                    {/* Block 3: The Heading Text - Scaled down for smaller viewports */}
+                    <motion.div 
+                        style={{ y: headingY }}
+                        className="absolute inset-0 z-[100] w-full h-full flex flex-col items-center justify-center pointer-events-none"
+                    >
+                        {/* Reduced max-width from 1751px to 1150px for laptop screens */}
+                        <div ref={svgRef} className="w-full max-w-[1150px] aspect-[1751/336] relative select-none pointer-events-auto">
+                            <SmokeCanvas
+                                smokeOpacity={smokeOpacity}
+                                hoverProgress={hoverProgress}
+                                distortionAmount={distortionAmount}
+                            />
+                            <motion.div style={{ opacity: crispVectorOpacity }} className="w-full h-full relative z-10">
+                                <HeadingSvg hoverProgress={hoverProgress} />
+                            </motion.div>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* ══════ MOBILE LAYOUT (PHONE) ══════ */}
+                <div className="md:hidden relative w-full h-full flex flex-col items-center justify-center px-6">
+                    {/* Block 1: Geometric Reveal Background (Scaled for mobile) */}
+                    <div className="absolute inset-0 z-[1] pointer-events-none">
+                        <GeometricBackground
+                            progress={geoProgress}
+                            x={backgroundX}
+                            y={backgroundY}
+                            opacity={0.1}
+                            isMask={false}
+                            isInverse={false}
+                            fillColor="#000000"
+                            triggerRange={[0, 1]}
+                            strokeColor="#FFFFFF"
+                        />
+                    </div>
+
+                    {/* Block 3: The Heading Text - Optimized for mobile width */}
+                    <motion.div 
+                        style={{ y: headingY }}
+                        className="relative z-[100] w-full flex flex-col items-center justify-center pointer-events-none"
+                    >
+                        <div ref={svgRef} className="w-full max-w-[400px] aspect-[1751/336] relative select-none pointer-events-auto">
+                            <SmokeCanvas
+                                smokeOpacity={smokeOpacity}
+                                hoverProgress={hoverProgress}
+                                distortionAmount={distortionAmount}
+                            />
+                            <motion.div style={{ opacity: crispVectorOpacity }} className="w-full h-full relative z-10">
+                                <HeadingSvg hoverProgress={hoverProgress} />
+                            </motion.div>
+                        </div>
+                    </motion.div>
+                </div>
 
                 {/* Navbar Sync Trigger (Invisible but has volume for detection) */}
                 <motion.div 
