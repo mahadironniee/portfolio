@@ -247,6 +247,15 @@ export default function Home() {
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  
+  // Auto-cycle projects on mobile ONLY (Desktop is handled by BlackHoleSideProjects)
+  useEffect(() => {
+    if (!isMobile || preloaderState !== "DONE") return;
+    const interval = setInterval(() => {
+      setActiveProjectIdx((prev) => (prev + 1) % PROJECTS.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [isMobile, preloaderState]);
 
   useEffect(() => {
     let animationFrameId: number;
@@ -588,7 +597,7 @@ export default function Home() {
 
             {/* Desktop: TypewriterText + CTA */}
             <div className="absolute z-[210] flex flex-col items-end gap-2" style={{ left: "19%", top: "calc(40% - 132px)", width: "648px" }}>
-              <div className="w-full h-[220px]">
+              <div className="w-full h-[220px] relative top-1">
                 <TypewriterText
                   title={activeProjectIdx !== -1 ? PROJECTS[activeProjectIdx].alt : ""}
                   text={activeProjectIdx !== -1 ? PROJECTS[activeProjectIdx].desc : ""}
@@ -617,7 +626,7 @@ export default function Home() {
           </div>
 
           {/* ══════ MOBILE LAYOUT ══════ */}
-          <div className="md:hidden absolute inset-0 flex flex-col" style={{ paddingTop: "80px" }}>
+          <div className="md:hidden absolute inset-0 flex flex-col pt-[60px] min-[390px]:pt-[120px]">
             {/* ── Mobile card carousel ──────────────────────────────────────────
                 All 7 cards always rendered. Each computes its signed distance
                 (norm) from the active card and springs to the matching slot.
@@ -627,7 +636,7 @@ export default function Home() {
                   Sides  (norm=±1): scale 0.45 → ~104px wide, x=±153
                   Off-screen:       opacity 0, x=±500
                 Gap = 153 - 86 - 52 = 15px on each side ✓                   */}
-            <div className="relative w-full overflow-hidden" style={{ height: "210px" }}>
+            <div className="relative w-full overflow-hidden shrink-0" style={{ height: "210px" }}>
               {PROJECTS.map((project, i) => {
                 const N = PROJECTS.length;
                 const cur = activeProjectIdx >= 0 ? activeProjectIdx : 0;
@@ -637,9 +646,9 @@ export default function Home() {
 
                 let targetX: number, targetY: number, targetScale: number, targetOpacity: number;
                 // Reverse direction: 1=coming from left, -1=leaving on right
-                if (norm === 1) { targetX = -153; targetY = 22; targetScale = 0.45; targetOpacity = 0.78; }
+                if (norm === 1) { targetX = -153; targetY = 0; targetScale = 0.45; targetOpacity = 0.78; }
                 else if (norm === 0) { targetX = 0; targetY = 0; targetScale = 0.75; targetOpacity = 1.00; }
-                else if (norm === -1) { targetX = 153; targetY = 22; targetScale = 0.45; targetOpacity = 0.78; }
+                else if (norm === -1) { targetX = 153; targetY = 0; targetScale = 0.45; targetOpacity = 0.78; }
                 else { targetX = (norm > 0 ? -500 : 500); targetY = 0; targetScale = 0.30; targetOpacity = 0; }
 
                 // Determine if this is the antipodal wrap point (furthest card)
@@ -666,64 +675,156 @@ export default function Home() {
                       transformOrigin: "center center",
                     }}
                   >
-                    <Image
-                      src={project.src}
-                      alt={project.alt}
-                      fill
-                      className="object-cover"
-                      sizes="230px"
-                    />
-                    {/* HUD magnifying-glass brackets — center card only */}
-                    {norm === 0 && (
-                      <>
-                        <div className="absolute top-0 left-0 w-5 h-5 border-t-2 border-l-2 border-[#0066FF]" />
-                        <div className="absolute top-0 right-0 w-5 h-5 border-t-2 border-r-2 border-[#0066FF]" />
-                        <div className="absolute bottom-0 left-0 w-5 h-5 border-b-2 border-l-2 border-[#0066FF]" />
-                        <div className="absolute bottom-0 right-0 w-5 h-5 border-b-2 border-r-2 border-[#0066FF]" />
-                        {/* Scan line animation */}
-                        <motion.div
-                          initial={{ top: "0%" }}
-                          animate={{ top: ["0%", "100%", "0%"] }}
-                          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                          className="absolute left-0 right-0 h-[1px] bg-[#0066FF]/50 pointer-events-none"
-                        />
-                      </>
+                    {/* CRT, Grain, and NO SIGNAL overlays (copied from desktop) */}
+                    {norm !== 0 && (
+                      <div className="absolute inset-0 pointer-events-none z-10">
+                          <svg className="absolute w-0 h-0" aria-hidden="true">
+                              <filter id={`mobile-crt-noise-${i}`} x="0%" y="0%" width="100%" height="100%">
+                                  <feTurbulence
+                                      type="fractalNoise"
+                                      baseFrequency="1.2"
+                                      numOctaves="1"
+                                      seed={i * 13}
+                                      stitchTiles="stitch"
+                                  >
+                                      <animate
+                                          attributeName="seed"
+                                          values={`${i * 7};${50 + i * 3};${100 - i * 5};${30 + i * 11};${80 - i * 9};${10 + i * 6};${60 - i * 4};${90 + i * 2};${20 - i * 8};${70 + i * 5}`}
+                                          dur={`${2 + (i % 7) * 0.15}s`}
+                                          repeatCount="indefinite"
+                                      />
+                                  </feTurbulence>
+                                  <feComponentTransfer>
+                                      <feFuncR type="discrete" tableValues="0 1" />
+                                      <feFuncG type="discrete" tableValues="0 1" />
+                                      <feFuncB type="discrete" tableValues="0 1" />
+                                  </feComponentTransfer>
+                              </filter>
+                          </svg>
+                          <div
+                              className="absolute inset-[-50%]"
+                              style={{
+                                  width: "200%",
+                                  height: "200%",
+                                  filter: `url(#mobile-crt-noise-${i})`,
+                                  animation: `no-signal-grain-${i} ${3 + i * 0.7}s steps(1) ${i * 1.3}s infinite`,
+                                  opacity: 0.04,
+                              }}
+                          />
+                          <div
+                              className="absolute inset-0"
+                              style={{
+                                  background: "repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px)",
+                              }}
+                          />
+                          <style>{`
+                              @keyframes mobile-crt-flicker-${i} {
+                                  0%, 100% { opacity: ${0.30 + (i % 3) * 0.02}; }
+                                  ${10 + i * 2}% { opacity: ${0.38 - (i % 4) * 0.01}; }
+                                  ${25 + i * 3}% { opacity: ${0.28 + (i % 5) * 0.02}; }
+                                  ${45 + i}% { opacity: ${0.36 - (i % 3) * 0.015}; }
+                                  ${65 + i * 2}% { opacity: ${0.31 + (i % 4) * 0.01}; }
+                                  ${85 - i}% { opacity: ${0.37 - (i % 5) * 0.01}; }
+                              }
+                              @keyframes mobile-no-signal-show-${i} {
+                                  0%, 65% { opacity: 0; }
+                                  ${68 + (i % 3)}% { opacity: 0.9; }
+                                  ${70 + (i % 4)}% { opacity: 0; }
+                                  ${73 + (i % 3)}% { opacity: 0.85; }
+                                  ${82 + (i % 5)}% { opacity: 0.85; }
+                                  ${83 + (i % 4)}% { opacity: 0; }
+                                  ${86 + (i % 3)}% { opacity: 0.9; }
+                                  95% { opacity: 0.9; }
+                                  97% { opacity: 0; }
+                              }
+                              @keyframes mobile-no-signal-bw-flicker-${i} {
+                                  0%, 65% { opacity: 0; background: transparent; }
+                                  ${68 + (i % 3)}% { opacity: 0.8; background: white; }
+                                  ${69 + (i % 2)}% { opacity: 0.5; background: black; }
+                                  ${70 + (i % 4)}% { opacity: 0; background: transparent; }
+                                  ${73 + (i % 3)}% { opacity: 0.9; background: white; }
+                                  ${76 + (i % 5)}% { opacity: 0.6; background: black; }
+                                  ${78 + (i % 2)}% { opacity: 0.7; background: white; }
+                                  ${82 + (i % 5)}% { opacity: 1.0; background: black; }
+                                  ${83 + (i % 4)}% { opacity: 0; background: transparent; }
+                                  ${86 + (i % 3)}% { opacity: 0.8; background: white; }
+                                  ${88 + (i % 2)}% { opacity: 0.4; background: black; }
+                                  95% { opacity: 0.6; background: white; }
+                                  97%, 100% { opacity: 0; background: transparent; }
+                              }
+                              @keyframes mobile-no-signal-glitch-${i} {
+                                  0%, 100% { transform: translate(0, 0); text-shadow: -1px 0 #ff0000, 1px 0 #00ffff; }
+                                  20% { transform: translate(-2px, 1px); text-shadow: 2px 0 #ff0000, -2px 0 #00ffff; }
+                                  40% { transform: translate(1px, -1px); text-shadow: -1px 0 #ff0000, 1px 0 #00ffff; }
+                                  60% { transform: translate(2px, 0); text-shadow: 1px 0 #ff0000, -1px 0 #00ffff; }
+                                  80% { transform: translate(-1px, 1px); text-shadow: -2px 0 #ff0000, 2px 0 #00ffff; }
+                              }
+                          `}</style>
+                          <div
+                              className="absolute inset-0 bg-black"
+                              style={{
+                                  animation: `mobile-crt-flicker-${i} ${1.5 + (i % 7) * 0.15}s ease-in-out infinite`,
+                              }}
+                          />
+                          <div
+                              className="absolute inset-0 mix-blend-overlay pointer-events-none"
+                              style={{
+                                  animation: `mobile-no-signal-bw-flicker-${i} ${3 + i * 0.7}s steps(1) ${i * 1.3}s infinite`,
+                                  opacity: 0,
+                              }}
+                          />
+                          <div
+                              className="absolute inset-0 flex items-center justify-center p-4 text-center"
+                              style={{
+                                  animation: `mobile-no-signal-show-${i} ${3 + i * 0.7}s ease-in-out ${i * 1.3}s infinite`,
+                              }}
+                          >
+                              <span
+                                  className="text-white font-bold tracking-[0.3em] uppercase select-none"
+                                  style={{
+                                      fontSize: "14px",
+                                      fontFamily: "monospace",
+                                      animation: `mobile-no-signal-glitch-${i} ${0.3 + (i % 3) * 0.1}s steps(1) infinite`,
+                                      letterSpacing: "0.25em",
+                                  }}
+                              >
+                                  NO SIGNAL
+                              </span>
+                          </div>
+                      </div>
                     )}
+
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={project.src}
+                        alt={project.alt}
+                        fill
+                        className="object-cover"
+                        sizes="230px"
+                      />
+                    </div>
+
                   </motion.div>
                 );
               })}
             </div>
 
             {/* Mobile: category label + description + CTA */}
-            <div className="px-4 pb-4 flex flex-col gap-3" style={{ zIndex: 30 }}>
+            <div className="px-4 pb-0 flex flex-col gap-1 relative z-30 mt-2 min-[390px]:mt-6">
 
-
-              <div style={{ minHeight: "80px" }}>
+              {/* Fixed height container for Project Description to stabilize button position */}
+              <div className="w-full origin-top-left" style={{ height: "120px", transform: "scale(0.85)", width: "117%" }}>
                 <TypewriterText
-                  title={activeProjectIdx !== -1 ? PROJECTS[activeProjectIdx].alt : ""}
-                  text={activeProjectIdx !== -1 ? PROJECTS[activeProjectIdx].desc : PROJECTS[2].desc}
+                  title={PROJECTS[activeProjectIdx] ? PROJECTS[activeProjectIdx].alt : PROJECTS[0].alt}
+                  text={PROJECTS[activeProjectIdx] ? PROJECTS[activeProjectIdx].desc : PROJECTS[0].desc}
                   isActive={true}
-                  isPaused={false}
                   variant="light"
-                  showHighlight={true}
+                  delay={0}
                 />
               </div>
 
-              <div className="flex justify-between items-center mt-2">
-                <div className="flex gap-2">
-                  <button
-                    onClick={handlePrev}
-                    className="w-10 h-10 border border-[#0066FF] flex items-center justify-center bg-transparent active:bg-[#0066FF] active:text-white transition-colors"
-                  >
-                    <span className="text-[#0066FF] font-bold active:text-white">&lt;</span>
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="w-10 h-10 border border-[#0066FF] flex items-center justify-center bg-transparent active:bg-[#0066FF] active:text-white transition-colors"
-                  >
-                    <span className="text-[#0066FF] font-bold active:text-white">&gt;</span>
-                  </button>
-                </div>
+              <div className="flex justify-end items-center mt-1 origin-right" style={{ transform: "scale(0.85)" }}>
+                {/* Manual navigation buttons removed as per request for auto-cycling */}
                 <BracketButton
                   href="/contact"
                   color="white"
@@ -737,44 +838,38 @@ export default function Home() {
             </div>
 
             {/* Mobile: Bottom "designer" headline SVG */}
-            <div
-              className="relative w-full overflow-hidden"
-              style={{ height: "clamp(100px, 22vw, 160px)", zIndex: 5 }}
-            >
-              {/* Left bracket arc decoration (matching the design's left-side half-circle) */}
+            {/* Mobile: Bottom-aligned group containing Labels and Designer Headline */}
+            <div className="mt-auto relative">
+              {/* Designer headline SVG */}
               <div
-                className="absolute left-0 top-0 h-full pointer-events-none"
-                style={{
-                  width: "clamp(60px, 14vw, 100px)",
-                  borderRight: "14px solid black",
-                  borderTopRightRadius: "999px",
-                  borderBottomRightRadius: "999px",
-                }}
-              />
-              <div
-                className="absolute pointer-events-none"
-                style={{
-                  left: "clamp(55px, 13vw, 95px)",
-                  top: 0,
-                  width: "calc(100% - clamp(20px, 6vw, 50px))",
-                  height: "100%",
-                }}
+                className="relative w-full overflow-hidden"
+                style={{ height: "clamp(300px, 82vw, 550px)", zIndex: 5 }}
               >
-                <Image
-                  src="/svgs/HeroHeadlineSVG-Live.svg"
-                  alt="designer"
-                  fill
-                  className="object-contain object-left"
-                  priority
-                  style={{ filter: "brightness(0)" }}
-                />
+                  <div
+                    className="absolute pointer-events-none"
+                    style={{
+                      left: "-12vw", // Frame out the 'D' moderately
+                      bottom: "-10vw", // Push image down slightly to avoid cropping top edge
+                      width: "125%", 
+                      height: "110%",
+                    }}
+                  >
+                  <Image
+                    src="/svgs/Mobile Hero Headline.svg"
+                    alt="designer"
+                    fill
+                    className="object-contain object-left-bottom"
+                    priority
+                    style={{ filter: "brightness(0)" }}
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Mobile: bottom label row (PURPOSE / MEANING / VISUAL HIERARCHY / CLARITY / EXECUTION) */}
-            <div className="px-4 pb-3" style={{ zIndex: 30 }}>
-              <div className="relative w-full h-[20px]">
-                <Image src="/svgs/hero-sub-heading.svg" alt="" fill className="object-contain object-left" style={{ filter: "brightness(0)" }} />
+              {/* bottom label row (PURPOSE / MEANING / VISUAL HIERARCHY / CLARITY / EXECUTION) floating over SVG */}
+              <div className="absolute bottom-4 left-0 w-full px-4" style={{ zIndex: 30 }}>
+                <div className="relative w-full h-[20px]">
+                  <Image src="/svgs/hero-sub-heading.svg" alt="" fill className="object-contain object-left" style={{ filter: "brightness(0)" }} />
+                </div>
               </div>
             </div>
           </div>

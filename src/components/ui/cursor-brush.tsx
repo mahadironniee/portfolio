@@ -81,7 +81,7 @@ export function CursorBrush({ externalX, externalY }: { externalX?: MotionValue<
   }, [x, y, externalX, externalY, internalX, internalY]);
 
   return (
-    <div className="fixed inset-0 z-[9999] pointer-events-none">
+    <div className="hidden md:block fixed inset-0 z-[9999] pointer-events-none">
       {Array.from({ length: TRAIL_COUNT }).map((_, i) => (
         <TrailNode key={i} index={i} x={x} y={y} isVisible={isVisible} />
       ))}

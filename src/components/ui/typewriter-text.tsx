@@ -68,8 +68,8 @@ export default function TypewriterText({
     };
 
     return (
-        <div className={`flex flex-col gap-1 pl-2 md:pl-5 pr-0 min-w-[300px] w-full max-w-[648px] ${className}`}>
-            <div className="flex items-center h-[29px] mb-2">
+        <div className={`flex flex-col gap-3 pl-2 md:pl-5 pr-0 min-w-[300px] w-full max-w-[648px] ${className}`}>
+            <div className="flex items-center h-[24px] mb-2">
                 <svg
                     width="16"
                     height="29"
@@ -124,7 +124,7 @@ export default function TypewriterText({
                             >
                                 <span className={`${highlightClasses[variant]} px-1.5 py-0.5 inline box-decoration-clone transition-colors duration-500`}>
                                     {displayedText}
-                                    <span className={`inline-block w-[6px] h-[12px] ${variant === 'light' ? 'bg-white' : cursorColor} ml-[1px] mb-[-1px] animate-blink-fast`} />
+                                    <span className={`inline-block w-[8px] h-[15px] ${variant === 'light' ? 'bg-white' : cursorColor} ml-[1px] mb-[-1px] animate-blink-fast`} />
                                 </span>
                             </motion.p>
                         </div>

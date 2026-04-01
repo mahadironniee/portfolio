@@ -157,7 +157,7 @@ export default function BracketButton({
     const content = (
         <div
             ref={containerRef}
-            className={`relative inline-flex items-center justify-center min-w-[151px] min-h-[49px] ${isStatic ? "pointer-events-none" : ""} ${className}`}
+            className={`relative inline-flex items-center justify-center min-w-[185px] min-h-[49px] ${isStatic ? "pointer-events-none" : ""} ${className}`}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -220,7 +220,7 @@ export default function BracketButton({
 
             {/* Text Content with optional Arrow */}
             <motion.span
-                className="relative z-20 text-xs font-bold tracking-[0.3em] uppercase px-4 py-2 flex items-center gap-3"
+                className="relative z-20 text-xs font-bold tracking-[0.3em] uppercase px-6 py-2 flex items-center gap-3"
                 initial={false}
                 animate={{ color: isStatic ? (isWireframe ? "#FFFFFF" : "#D9D9D9") : (isHovered ? hoverColor : textColor) }}
                 transition={{ duration: 0.3 }}

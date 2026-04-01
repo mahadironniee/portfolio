@@ -148,6 +148,8 @@ function TransitionBlock({
     isMask = false,
     fillColor = "#000000",
     initialFillColor,
+    strokeColor,
+    strokeOpacity = 1,
     triggerRange = [0, 1]
 }: {
     path: string;
@@ -159,6 +161,8 @@ function TransitionBlock({
     isMask?: boolean;
     fillColor?: string;
     initialFillColor?: string;
+    strokeColor?: string;
+    strokeOpacity?: number | MotionValue<number>;
     triggerRange?: [number, number];
 }) {
     const order = randomOrder.indexOf(index);
@@ -191,16 +195,34 @@ function TransitionBlock({
         { clamp: true }
     );
 
+    // Compute animated stroke opacity capped by the global setting
+    const animatedStrokeOpacity = useTransform(
+        progress,
+        [rangeStart, blockStart, blockEnd],
+        initialFillColor 
+            ? [
+                typeof strokeOpacity === 'number' ? strokeOpacity : 1, 
+                typeof strokeOpacity === 'number' ? strokeOpacity : 1, 
+                typeof strokeOpacity === 'number' ? strokeOpacity : 1
+              ] 
+            : [
+                0, 
+                0, 
+                typeof strokeOpacity === 'number' ? strokeOpacity : 1
+              ],
+        { clamp: true }
+    );
+
     return (
         <motion.path
             d={path}
             fill={finalFill}
             fillOpacity={fillOpacity}
-            stroke={isMask ? "none" : (initialFillColor ? fill : fillColor)}
+            stroke={isMask ? "none" : (initialFillColor ? fill : (strokeColor || fillColor))}
             strokeWidth={isMask ? 0 : 1.5}
             strokeLinejoin="round"
             style={{
-                strokeOpacity: isMask ? 0 : fillOpacity
+                strokeOpacity: isMask ? 0 : animatedStrokeOpacity
             }}
         />
     );
@@ -312,6 +334,8 @@ export default function GeometricBackground({
                                     isMask={false}
                                     fillColor={fillColor}
                                     initialFillColor={initialFillColor}
+                                    strokeColor={strokeColor}
+                                    strokeOpacity={opacity}
                                     triggerRange={triggerRange}
                                 />
                             ))}
