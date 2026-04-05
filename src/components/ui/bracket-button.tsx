@@ -69,8 +69,8 @@ export default function BracketButton({
 
     // Layout configuration based on measured dimensions
     const strokeW = 2;
-    const svgW = size.width - strokeW; 
-    const svgH = size.height - strokeW;
+    const svgW = Math.max(0, size.width - strokeW); 
+    const svgH = Math.max(0, size.height - strokeW);
     const perimeter = 2 * (svgW + svgH);
     const bracketLength = 50;
     const bracketGap = perimeter - bracketLength;

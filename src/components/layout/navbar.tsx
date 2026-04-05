@@ -96,7 +96,7 @@ function NavbarInner({
             <div className={`flex items-center ${isPreloading ? "pointer-events-none" : "pointer-events-auto"} ml-4 md:ml-32`}>
                 {/* Logo: Wireframe placeholder or real SVG */}
                 <div className="flex items-center justify-center h-[32px] relative" style={{ minWidth: 88 }}>
-                    <AnimatePresence mode="wait">
+                    <AnimatePresence mode="wait" initial={false}>
                         {isLogoWireframe ? (
                             <motion.div
                                 key="logo-wireframe"
@@ -605,8 +605,7 @@ export default function Navbar({ lockedPathname }: { lockedPathname?: string }) 
 
 
 
-    if (!mounted) return null;
- 
+
     return (
         <nav ref={containerRef}>
             <div

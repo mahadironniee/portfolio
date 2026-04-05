@@ -37,6 +37,34 @@ export default function SmoothScroll() {
             }
         });
 
+        // ── Preloader Scroll Lock for Desktop ──
+        // Lenis ignores body { overflow: hidden } and calculates its own scroll from wheel events.
+        // We must manually stop Lenis while the preloader is active.
+        const checkPreloader = () => {
+            if (document.documentElement.hasAttribute('data-preloading') && document.documentElement.getAttribute('data-preloading') === 'true') {
+                lenis.stop();
+            } else {
+                lenis.start();
+            }
+        };
+
+        // Check initial state
+        checkPreloader();
+
+        // Watch for preloader state changes to resume scroll dynamically
+        const preloaderObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'data-preloading') {
+                    checkPreloader();
+                }
+            });
+        });
+
+        preloaderObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-preloading']
+        });
+
         // Keep scroll limits accurate when DOM height changes
         const resizeObserver = new ResizeObserver(() => {
             if (lenisRef.current) lenisRef.current.resize();
@@ -53,6 +81,7 @@ export default function SmoothScroll() {
         return () => {
             lenis.destroy();
             resizeObserver.disconnect();
+            preloaderObserver.disconnect();
             lenisRef.current = null;
         };
     }, []);

@@ -21,7 +21,6 @@ const EASE = [0.22, 1, 0.36, 1] as any;
 
 export default function SecondSection() {
     const sectionRef = useRef<HTMLElement>(null);
-    const svgRef = useRef<HTMLDivElement>(null);
     const hoverProgress = useMotionValue(0);
 
     // Track scroll through the whole 200vh section (for pinned animations)
@@ -68,42 +67,19 @@ export default function SecondSection() {
     const crispVectorOpacity = useTransform(smokeOpacity, [0, 0.05], [1, 0]);
     const distortionAmount = useTransform(entryProgress, [0.35, 0.42, 0.5, 0.6, 0.7, 0.8], [0, 1, 0.05, 0.05, 1, 0]);
 
-    useEffect(() => {
-        let prevInside = false;
-        const mouse = { x: 0, y: 0 };
+    const handleMouseEnter = () => {
+        animate(hoverProgress, 1, {
+            duration: 0.7,
+            ease: EASE,
+        });
+    };
 
-        const checkBounds = () => {
-            if (!svgRef.current) return;
-            const r = svgRef.current.getBoundingClientRect();
-            const inside =
-                mouse.x >= r.left && mouse.x <= r.right &&
-                mouse.y >= r.top && mouse.y <= r.bottom;
-
-            if (inside !== prevInside) {
-                prevInside = inside;
-                animate(hoverProgress, inside ? 1 : 0, {
-                    duration: 0.7,
-                    ease: EASE,
-                });
-            }
-        };
-
-        const onMouseMove = (e: MouseEvent) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-            checkBounds();
-        };
-
-        const onScroll = () => checkBounds();
-
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("scroll", onScroll, { passive: true });
-
-        return () => {
-            window.removeEventListener("mousemove", onMouseMove);
-            window.removeEventListener("scroll", onScroll);
-        };
-    }, [hoverProgress]);
+    const handleMouseLeave = () => {
+        animate(hoverProgress, 0, {
+            duration: 0.7,
+            ease: EASE,
+        });
+    };
 
     return (
         <section 
@@ -135,7 +111,11 @@ export default function SecondSection() {
                         style={{ y: headingY }}
                         className="absolute inset-0 z-[100] w-full h-full flex flex-col items-center justify-center pointer-events-none"
                     >
-                        <div ref={svgRef} className="w-full max-w-[1751px] aspect-[1751/336] relative select-none pointer-events-auto">
+                        <div 
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
+                            className="w-full max-w-[1751px] aspect-[1751/336] relative select-none pointer-events-auto"
+                        >
                             <SmokeCanvas
                                 smokeOpacity={smokeOpacity}
                                 hoverProgress={hoverProgress}
@@ -171,7 +151,11 @@ export default function SecondSection() {
                         className="absolute inset-0 z-[100] w-full h-full flex flex-col items-center justify-center pointer-events-none"
                     >
                         {/* Reduced max-width from 1751px to 1150px for laptop screens */}
-                        <div ref={svgRef} className="w-full max-w-[1150px] aspect-[1751/336] relative select-none pointer-events-auto">
+                        <div 
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
+                            className="w-full max-w-[1150px] aspect-[1751/336] relative select-none pointer-events-auto"
+                        >
                             <SmokeCanvas
                                 smokeOpacity={smokeOpacity}
                                 hoverProgress={hoverProgress}
@@ -206,7 +190,11 @@ export default function SecondSection() {
                         style={{ y: headingY }}
                         className="relative z-[100] w-full flex flex-col items-center justify-center pointer-events-none"
                     >
-                        <div ref={svgRef} className="w-full max-w-[400px] aspect-[1751/336] relative select-none pointer-events-auto">
+                        <div 
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
+                            className="w-full max-w-[400px] aspect-[1751/336] relative select-none pointer-events-auto"
+                        >
                             <SmokeCanvas
                                 smokeOpacity={smokeOpacity}
                                 hoverProgress={hoverProgress}
